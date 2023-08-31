@@ -67,8 +67,6 @@ import java.util.concurrent.TimeUnit;
 @TeleOp(name = "Optimize AprilTag Exposure", group = "Concept")
 //@Disabled
 public class AprilTagOptimizeExposure extends LinearOpMode {
-    // Create a RobotHardware object to be used to access robot hardware.
-    // Prefix any hardware functions with "robot." to access this class.
     private VisionPortal visionPortal = null;        // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private int myExposure;
