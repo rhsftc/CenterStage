@@ -31,7 +31,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -39,15 +38,18 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 /*
  * Demonstrates an empty iterative OpMode
  */
 @TeleOp(name = "Encoder Test", group = "Test")
-@Disabled
+//@Disabled
 public class EncoderTest extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private GamepadEx gamePad;
     private DcMotorEx motor;
+    private final int ENCODER_INCREMENT = 500;
 
     /**
      * This method will be called once, when the INIT button is pressed.
@@ -55,7 +57,7 @@ public class EncoderTest extends OpMode {
     @Override
     public void init() {
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("Dpad Up and Dpad Oown","");
+        telemetry.addLine("Dpad Up and Dpad Down");
         telemetry.update();
         gamePad = new GamepadEx(gamepad1);
         motor = hardwareMap.get(DcMotorEx.class, "motor");
@@ -94,18 +96,25 @@ public class EncoderTest extends OpMode {
     public void loop() {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         if (gamePad.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
-            motor.setTargetPosition(motor.getCurrentPosition() + 100);
+            motor.setTargetPosition(motor.getCurrentPosition() + ENCODER_INCREMENT);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(.5);
         }
 
         if (gamePad.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
-            motor.setTargetPosition(motor.getCurrentPosition() + 100);
+            motor.setTargetPosition(motor.getCurrentPosition() - ENCODER_INCREMENT);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(.5);
         }
-
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motor.setPower(.5);
 
         telemetry.addData("Position", "%7d",
                 motor.getCurrentPosition());
+        telemetry.addData("Velocity", "%7d",
+                (int) motor.getVelocity());
+        telemetry.addData("Current (milli amps)", "%.0f",
+                motor.getCurrent(CurrentUnit.MILLIAMPS));
+        telemetry.addData("PIDF Coefficients",
+                motor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
         telemetry.update();
     }
 
