@@ -32,12 +32,14 @@ public class EvaluateCamera extends OpMode {
     private long exposure;
     private int minExposure;
     private int maxExposure;
+    private boolean isTemperatureSet = false;
     private int minTemperature;
     private int maxTemperature;
     private int currentTemperature;
     private int gain;
     private int minGain;
     private int maxGain;
+    private double focusLength = 0;
     final int RESOLUTION_WIDTH = 640;
     final int RESOLUTION_HEIGHT = 480;
 
@@ -82,21 +84,21 @@ public class EvaluateCamera extends OpMode {
         GainControl gainControl = portal.getCameraControl(GainControl.class);
         minGain = gainControl.getMinGain();
         maxGain = gainControl.getMaxGain();
-        isGainSupported = gainControl.setGain(5);
+        isGainSupported = gainControl.setGain(25);
         gain = gainControl.getGain();
 
         // White Balance
         WhiteBalanceControl whiteBalanceControl = portal.getCameraControl(WhiteBalanceControl.class);
         isWhiteBalanceAutoSupported = whiteBalanceControl.setMode(WhiteBalanceControl.Mode.AUTO);
         isWhiteBalanceManualSupported = whiteBalanceControl.setMode(WhiteBalanceControl.Mode.MANUAL);
-        whiteBalanceControl.setMode(WhiteBalanceControl.Mode.MANUAL);
-        whiteBalanceControl.setWhiteBalanceTemperature(6500);
+        isTemperatureSet = whiteBalanceControl.setWhiteBalanceTemperature(6500);
         minTemperature = whiteBalanceControl.getMinWhiteBalanceTemperature();
         maxTemperature = whiteBalanceControl.getMaxWhiteBalanceTemperature();
         currentTemperature = whiteBalanceControl.getMinWhiteBalanceTemperature();
 
         // Focus
         FocusControl focusControl = portal.getCameraControl(FocusControl.class);
+        focusLength = focusControl.getFocusLength();
         isAutoFocusSupported = focusControl.isModeSupported(FocusControl.Mode.Auto);
         isFixedFocusSupported = focusControl.isModeSupported(FocusControl.Mode.Fixed);
         isContinuousFocusSupported = focusControl.isModeSupported(FocusControl.Mode.ContinuousAuto);
@@ -132,6 +134,7 @@ public class EvaluateCamera extends OpMode {
         telemetry.addData("Macro Support", isMacroFocusSupported);
         telemetry.addData("Continuous Support", isContinuousFocusSupported);
         telemetry.addData("Infinity Support", isInfinityFocusSupported);
+        telemetry.addData("Focus Length", focusLength);
         telemetry.update();
     }
 }
