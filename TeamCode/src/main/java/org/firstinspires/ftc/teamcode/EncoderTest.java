@@ -49,7 +49,7 @@ public class EncoderTest extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private GamepadEx gamePad;
     private DcMotorEx motor;
-    private final int ENCODER_INCREMENT = 500;
+    private final float ENCODER_INCREMENT = 145.1f;
 
     /**
      * This method will be called once, when the INIT button is pressed.
@@ -97,14 +97,14 @@ public class EncoderTest extends OpMode {
         gamePad.readButtons();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
-            motor.setTargetPosition(motor.getCurrentPosition() + ENCODER_INCREMENT);
+            motor.setTargetPosition((int) (motor.getCurrentPosition() + ENCODER_INCREMENT));
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(.75);
         }
 
         if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
-            motor.setTargetPosition(motor.getCurrentPosition() - ENCODER_INCREMENT);
-            motor.  setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setTargetPosition((int) (motor.getCurrentPosition() - ENCODER_INCREMENT));
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(.75);
         }
 
