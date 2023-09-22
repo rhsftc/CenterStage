@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -93,14 +94,15 @@ public class EncoderTest extends OpMode {
      */
     @Override
     public void loop() {
+        gamePad.readButtons();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        if (gamepad1.dpad_up) {
+        if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
             motor.setTargetPosition(motor.getCurrentPosition() + ENCODER_INCREMENT);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(.75);
         }
 
-        if (gamepad1.dpad_down) {
+        if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
             motor.setTargetPosition(motor.getCurrentPosition() - ENCODER_INCREMENT);
             motor.  setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(.75);
@@ -113,7 +115,7 @@ public class EncoderTest extends OpMode {
         telemetry.addData("Current (milli amps)", "%.0f",
                 motor.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.addData("PIDF Coefficients",
-                motor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
+                motor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
         telemetry.update();
     }
 
