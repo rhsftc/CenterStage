@@ -30,7 +30,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -95,16 +94,16 @@ public class EncoderTest extends OpMode {
     @Override
     public void loop() {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        if (gamePad.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
+        if (gamepad1.dpad_up) {
             motor.setTargetPosition(motor.getCurrentPosition() + ENCODER_INCREMENT);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(.5);
+            motor.setPower(.75);
         }
 
-        if (gamePad.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
+        if (gamepad1.dpad_down) {
             motor.setTargetPosition(motor.getCurrentPosition() - ENCODER_INCREMENT);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(.5);
+            motor.  setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(.75);
         }
 
         telemetry.addData("Position", "%7d",
