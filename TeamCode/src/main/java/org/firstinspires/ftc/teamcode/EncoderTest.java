@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -49,7 +50,8 @@ public class EncoderTest extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private GamepadEx gamePad;
     private DcMotorEx motor;
-    private final float ENCODER_INCREMENT = 145.1f;
+    private final float ENCODER_INCREMENT = 145.1f * 2f; // Two revolutions
+    private PIDFCoefficients pidfCoefficients;
 
     /**
      * This method will be called once, when the INIT button is pressed.
@@ -65,6 +67,10 @@ public class EncoderTest extends OpMode {
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pidfCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        pidfCoefficients.p = 5;
+        pidfCoefficients.f = .05f;
+        motor.setVelocityPIDFCoefficients(pidfCoefficients.p, pidfCoefficients.i, pidfCoefficients.d, pidfCoefficients.f);
     }
 
     /**
@@ -108,14 +114,13 @@ public class EncoderTest extends OpMode {
             motor.setPower(.75);
         }
 
-        telemetry.addData("Position", "%7d",
-                motor.getCurrentPosition());
-        telemetry.addData("Velocity", "%7d",
-                (int) motor.getVelocity());
-        telemetry.addData("Current (milli amps)", "%.0f",
-                motor.getCurrent(CurrentUnit.MILLIAMPS));
-        telemetry.addData("PIDF Coefficients",
-                motor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
+        telemetry.addData("Target", "%7d", motor.getTargetPosition());
+        telemetry.addData("Position", "%7d", motor.getCurrentPosition());
+        telemetry.addData("Velocity", "%7d", (int) motor.getVelocity());
+        telemetry.addData("Power", motor.getPower());
+        telemetry.addData("Busy", motor.isBusy());
+        telemetry.addData("Current (milli amps)", "%.0f", motor.getCurrent(CurrentUnit.MILLIAMPS));
+        telemetry.addData("PIDF Coefficients", motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
         telemetry.update();
     }
 
