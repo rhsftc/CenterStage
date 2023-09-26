@@ -29,7 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -55,7 +55,7 @@ import com.qualcomm.robotcore.util.Range;
 public class RHSRobotHardware {
 
     /* Declare OpMode members. */
-    private LinearOpMode myOpMode = null;   // gain access to methods in the calling OpMode.
+    private OpMode myOpMode = null;   // gain access to methods in the calling OpMode.
 
     // Define Motor and Servo objects  (Make them private so they can't be accessed externally)
     private DcMotor leftDrive = null;
@@ -72,7 +72,7 @@ public class RHSRobotHardware {
     public static final double ARM_DOWN_POWER = -0.45;
 
     // Define a constructor that allows the OpMode to pass a reference to itself.
-    public RHSRobotHardware(LinearOpMode opmode) {
+    public RHSRobotHardware(OpMode opmode) {
         myOpMode = opmode;
     }
 
