@@ -33,16 +33,15 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class AutonomousConfiguration {
     private AutonomousOptions autonomousOptions;
     private Context context;
-    private ReadWriteAutoOptions readWriteAutoOptions;
     private boolean readyToStart;
     private boolean savedToFile;
     private Telemetry telemetry;
     private Telemetry.Item teleAlliance;
     private Telemetry.Item teleStartPosition;
-    private Telemetry.Item teleParkLocation;
-    private Telemetry.Item teleParkOnSignalZone;
-    private Telemetry.Item telePlaceConeInTerminal;
-    private Telemetry.Item telePlaceConesOnJunctions;
+    private Telemetry.Item teleParkInBackstage;
+    private Telemetry.Item telePlaceTeamArtOnSpike;
+    private Telemetry.Item telePlacePixelsInBackstage;
+    private Telemetry.Item telePlacePixelsOnBackdrop;
     private Telemetry.Item teleDelayStartSeconds;
     private Telemetry.Item teleReadyToStart;
     private Telemetry.Item teleSavedToFile;
@@ -54,7 +53,7 @@ public class AutonomousConfiguration {
      */
     public void init(GamepadEx gamepad, Telemetry telemetry1, Context context) {
         this.context = context;
-        readWriteAutoOptions = new ReadWriteAutoOptions(context);
+        ReadWriteAutoOptions readWriteAutoOptions = new ReadWriteAutoOptions(context);
         gamePad = gamepad;
         this.telemetry = telemetry1;
         // See if we saved the options yet. If not, save the defaults.
@@ -104,10 +103,10 @@ public class AutonomousConfiguration {
     private void ShowHelp() {
         teleAlliance = telemetry.addData("X = Blue, B = Red", autonomousOptions.getAllianceColor());
         teleStartPosition = telemetry.addData("D-pad left/right, select start position", autonomousOptions.getStartPosition());
-        teleParkLocation = telemetry.addData("D-pad up to cycle park in backstage", autonomousOptions.getParkInBackstage());
-        teleParkOnSignalZone = telemetry.addData("D-pad down to cycle place team art on spike", autonomousOptions.getPlaceTeamArtOnSpike());
-        telePlaceConesOnJunctions = telemetry.addData("A to cycle place pixels in backstage", autonomousOptions.getPlacePixelsInBackStage());
-        telePlaceConeInTerminal = telemetry.addData("Y to cycle place pixels on backdrop", autonomousOptions.getPlacePixelsOnBackdrop());
+        teleParkInBackstage = telemetry.addData("D-pad up to cycle park in backstage", autonomousOptions.getParkInBackstage());
+        telePlaceTeamArtOnSpike = telemetry.addData("D-pad down to cycle place team art on spike", autonomousOptions.getPlaceTeamArtOnSpike());
+        telePlacePixelsInBackstage = telemetry.addData("A to cycle place pixels in backstage", autonomousOptions.getPlacePixelsInBackStage());
+        telePlacePixelsOnBackdrop = telemetry.addData("Y to cycle place pixels on backdrop", autonomousOptions.getPlacePixelsOnBackdrop());
         teleDelayStartSeconds = telemetry.addData("Left & Right bumpers, Delay Start", autonomousOptions.getDelayStartSeconds());
         teleReadyToStart = telemetry.addData("Ready to start: ", getReadyToStart());
         teleSavedToFile = telemetry.addData("Saved to file:", savedToFile);
@@ -117,6 +116,7 @@ public class AutonomousConfiguration {
     // Call this in the init_loop from your opMode. It will returns true if you press the
     // game pad Start.
     public void init_loop() {
+        gamePad.readButtons();
         //Set default options (ignore what was saved to the file.)
         if (gamePad.wasJustReleased(GamepadKeys.Button.BACK)) {
             resetOptions();
@@ -157,7 +157,7 @@ public class AutonomousConfiguration {
                     break;
             }
             autonomousOptions.setParkInBackstage(parkInBackstage);
-            teleParkOnSignalZone.setValue(parkInBackstage);
+            teleParkInBackstage.setValue(parkInBackstage);
         }
 
         //Place team art on spike.
@@ -172,7 +172,7 @@ public class AutonomousConfiguration {
                     break;
             }
             autonomousOptions.setPlaceTeamArtOnSpike(placeTeamArtOnSpike);
-            telePlaceConesOnJunctions.setValue(placeTeamArtOnSpike);
+            telePlaceTeamArtOnSpike.setValue(placeTeamArtOnSpike);
         }
 
         //Place pixels in backstage
@@ -186,7 +186,7 @@ public class AutonomousConfiguration {
                     telemetry.speak("place pixels in backstage, no");
             }
             autonomousOptions.setPlacePixelsInBackStage(placePixelsInBackstage);
-            telePlaceConeInTerminal.setValue(placePixelsInBackstage);
+            telePlacePixelsInBackstage.setValue(placePixelsInBackstage);
         }
 
         //Place pixels on backdrop
@@ -200,7 +200,7 @@ public class AutonomousConfiguration {
                     telemetry.speak("place pixels in backstage, no");
             }
             autonomousOptions.setPlacePixelsOnBackdrop(placePixelsOnBackdrop);
-            telePlaceConeInTerminal.setValue(placePixelsOnBackdrop);
+            telePlacePixelsOnBackdrop.setValue(placePixelsOnBackdrop);
         }
 
         // Keep range within 0-15 seconds. Wrap at either end.
