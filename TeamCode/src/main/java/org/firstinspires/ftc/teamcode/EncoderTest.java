@@ -68,11 +68,15 @@ public class EncoderTest extends OpMode {
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         pidfCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-        pidfCoefficients.p = 5;
-        pidfCoefficients.f = 0;
-        pidfCoefficients.i = 3f;
+        pidfCoefficients.p = 1.17f;
+        pidfCoefficients.i = 1.17f;
+        pidfCoefficients.f = 11.7f;
+//        pidfCoefficients.p = 2f;
+//        pidfCoefficients.i = .5f;
+//        pidfCoefficients.f = 11f;
         motor.setVelocityPIDFCoefficients(pidfCoefficients.p, pidfCoefficients.i, pidfCoefficients.d, pidfCoefficients.f);
-        motor.setTargetPositionTolerance(10);
+        motor.setPositionPIDFCoefficients(5f);
+//        motor.setTargetPositionTolerance(10);
     }
 
     /**
