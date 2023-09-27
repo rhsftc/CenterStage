@@ -69,8 +69,10 @@ public class EncoderTest extends OpMode {
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         pidfCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         pidfCoefficients.p = 5;
-        pidfCoefficients.f = .05f;
+        pidfCoefficients.f = 0;
+        pidfCoefficients.i = 3f;
         motor.setVelocityPIDFCoefficients(pidfCoefficients.p, pidfCoefficients.i, pidfCoefficients.d, pidfCoefficients.f);
+        motor.setTargetPositionTolerance(10);
     }
 
     /**
@@ -105,13 +107,13 @@ public class EncoderTest extends OpMode {
         if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
             motor.setTargetPosition((int) (motor.getCurrentPosition() + ENCODER_INCREMENT));
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(.75);
+            motor.setPower(1);
         }
 
         if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
             motor.setTargetPosition((int) (motor.getCurrentPosition() - ENCODER_INCREMENT));
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(.75);
+            motor.setPower(1);
         }
 
         telemetry.addData("Target", "%7d", motor.getTargetPosition());

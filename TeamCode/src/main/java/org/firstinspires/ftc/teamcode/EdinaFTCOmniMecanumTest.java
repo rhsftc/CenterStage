@@ -68,7 +68,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * There are other libraries available that perform similar functions.
  */
 
-@TeleOp(name = "Omni/Mecacum Test", group = "test")
+@TeleOp(name = "Omni/Mecacum Test", group = "Test")
 //@Disabled
 public class EdinaFTCOmniMecanumTest extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
