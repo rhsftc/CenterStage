@@ -72,10 +72,12 @@ public class SetVelocityPIDF extends LinearOpMode {
                 LogData();
             }
 
-            telemetry.addData("Position Tolerance", targetPosition - currentPosition);
-            telemetry.addData("PIDF", "P=%g I=%g D=%g F=%g", pidfP, pidfI, pidfD, pidfF);
-            telemetry.update();
-            sleep(5000);
+            while (opModeIsActive()) {
+                telemetry.addData("Position Tolerance", targetPosition - currentPosition);
+                telemetry.addData("PIDF", "P=%g I=%g D=%g F=%g", pidfP, pidfI, pidfD, pidfF);
+                telemetry.update();
+                idle();
+            }
         }
     }
 
