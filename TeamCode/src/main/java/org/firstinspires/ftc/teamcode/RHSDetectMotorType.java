@@ -33,63 +33,76 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 /**
  * This OpMode ramps a single motor speed up and down repeatedly until Stop is pressed.
  * The code is structured as a LinearOpMode
  * <p>
- * This code assumes a DC motor configured with the name "left_drive" as is found on a Robot.
+ * This code assumes a DC motor configured with the name "motor" as is found on a Robot.
  * <p>
  * INCREMENT sets how much to increase/decrease the power each cycle
  * CYCLE_MS sets the update period.
  * <p>
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 @TeleOp(name = "Detect Motor Type", group = "Test")
 //@Disabled
 public class RHSDetectMotorType extends LinearOpMode {
 
-    static final double INCREMENT = 0.01;     // amount to ramp motor each CYCLE_MS cycle
-    static final int CYCLE_MS = 50;     // period of each cycle
-    static final double MAX_FWD = 1.0;     // Maximum FWD power applied to motor
-    static final double MAX_REV = -1.0;     // Maximum REV power applied to motor
+    private static final double INCREMENT = 0.01;     // amount to ramp motor each CYCLE_MS cycle
+    private static final int CYCLE_MS = 50;     // period of each cycle
+    private static final double MAX_FWD = 1.0;     // Maximum FWD power applied to motor
+    private static final double MAX_REV = -1.0;     // Maximum REV power applied to motor
+    private ElapsedTime timer;
 
     // Define class members
-    MotorEx motor;
+    private MotorEx motor;
     // Motor information
-    double maxRPM;
-    double achievableCountsPerRev;
-    double countsPerRev;
-    double ticsPerRev;
-    double encoderRate;
-    double velocity;
-    MotorConfigurationType type;
-    double power = 0;
-    boolean rampUp = true;
+    private HardwareDevice.Manufacturer manufacturer;
+    private double maxRPM;
+    double maxVelocity = 0;
+    private double velocity;
+    private double achievableCountsPerRev;
+    private double countsPerRev;
+    private double ticsPerRev;
+    private double encoderRate;
+    private int currentPosition;
+    private double revolutions;
+    private double current;
+    private MotorConfigurationType type;
+    private double power = 0;
+    private boolean rampUp = true;
 
     @Override
     public void runOpMode() {
-        // Connect to motor (Assume standard left wheel)
+        timer = new ElapsedTime();
         // Change the text in quotes to match any motor name on your robot.
-        motor = new MotorEx(hardwareMap, "motor", Motor.GoBILDA.RPM_1150);
-        motor.setInverted(true);
+        motor = new MotorEx(hardwareMap, "motor");
+        motor.setRunMode(Motor.RunMode.VelocityControl);
+        motor.stopAndResetEncoder();
         type = motor.motorEx.getMotorType();
+        manufacturer = motor.motor.getManufacturer();
         maxRPM = motor.getMaxRPM();
         achievableCountsPerRev = motor.ACHIEVABLE_MAX_TICKS_PER_SECOND;
         countsPerRev = motor.getCPR();
         encoderRate = motor.getRate();
         ticsPerRev = motor.motorEx.getMotorType().getTicksPerRev();
+        getMaxVelocity();
 
         // Wait for the start button
         telemetry.addData("Device Type", type.getName());
-        telemetry.addData("Description", type.getDescription());
-        telemetry.addData("RPM", maxRPM);
-        telemetry.addData("Achievable Tics", achievableCountsPerRev);
-        telemetry.addData("Tic Rate", countsPerRev);
-        telemetry.addData("Tics Per Rev", ticsPerRev);
-        telemetry.addData("Encoder Rate", encoderRate);
+        telemetry.addData("Manufacturer", manufacturer);
+        telemetry.addData("RPM", "%5.2f", maxRPM);
+        telemetry.addData("Max Velocity", maxVelocity);
+        telemetry.addData("Achievable Tics", "%5.2f", achievableCountsPerRev);
+        telemetry.addData("Tics Per Rev", "%5.2f", ticsPerRev);
+        telemetry.addData("Tic Rate", "%5.2f", countsPerRev);
+        telemetry.addData("Encoder Rate", "%5.2f", encoderRate);
         telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
         waitForStart();
@@ -114,22 +127,28 @@ public class RHSDetectMotorType extends LinearOpMode {
                 }
             }
 
-            countsPerRev = motor.getCPR();
-            encoderRate = motor.getRate();
-            velocity = motor.getVelocity();
-
-            // Display the current value
-            telemetry.addData("Motor Power", "%5.2f", power);
-            telemetry.addData("Tick Rate", countsPerRev);
-            telemetry.addData("Encoder Rate", encoderRate);
-            telemetry.addData("Velocity", velocity);
-            telemetry.addData("Acceleration", motor.getAcceleration());
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.update();
-
             // Set the motor to the new power and pause;
             motor.set(power);
             sleep(CYCLE_MS);
+
+            countsPerRev = motor.getCPR();
+            encoderRate = motor.getRate();
+            velocity = motor.getVelocity();
+            currentPosition = motor.getCurrentPosition();
+            revolutions = motor.encoder.getRevolutions();
+            current = motor.motorEx.getCurrent(CurrentUnit.MILLIAMPS);
+
+            // Display the current value
+            telemetry.addData("Motor Power", "%5.2f", power);
+            telemetry.addData("Tick Rate", "%5.2f", countsPerRev);
+            telemetry.addData("Encoder Rate", "%5.2f", encoderRate);
+            telemetry.addData("Velocity", "%5.2f", velocity);
+            telemetry.addData("Acceleration", "%5.2f", motor.getAcceleration());
+            telemetry.addData("Current Position", currentPosition);
+            telemetry.addData("Revolutions", "%5.2f", revolutions);
+            telemetry.addData("Current (milli amps)", "%5.2f", current);
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.update();
             idle();
         }
 
@@ -137,6 +156,21 @@ public class RHSDetectMotorType extends LinearOpMode {
         motor.set(0);
         telemetry.addData(">", "Done");
         telemetry.update();
+    }
 
+    private void getMaxVelocity() {
+        timer.reset();
+        motor.set(1);
+        while (timer.seconds() < 4 && !isStopRequested()) {
+            velocity = motor.getVelocity();
+            if (velocity > maxVelocity) {
+                maxVelocity = velocity;
+            }
+            telemetry.addData("current velocity", velocity);
+            telemetry.addData("maximum velocity", maxVelocity);
+            telemetry.update();
+        }
+
+        motor.stopMotor();
     }
 }
