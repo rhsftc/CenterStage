@@ -62,6 +62,7 @@ public class RHSDetectMotorType extends LinearOpMode {
     double maxRPM;
     double achievableCountsPerRev;
     double countsPerRev;
+    double ticsPerRev;
     double encoderRate;
     double velocity;
     MotorConfigurationType type;
@@ -79,13 +80,15 @@ public class RHSDetectMotorType extends LinearOpMode {
         achievableCountsPerRev = motor.ACHIEVABLE_MAX_TICKS_PER_SECOND;
         countsPerRev = motor.getCPR();
         encoderRate = motor.getRate();
+        ticsPerRev = motor.motorEx.getMotorType().getTicksPerRev();
 
         // Wait for the start button
         telemetry.addData("Device Type", type.getName());
         telemetry.addData("Description", type.getDescription());
         telemetry.addData("RPM", maxRPM);
-        telemetry.addData("Achievable Ticks", achievableCountsPerRev);
-        telemetry.addData("Tick Rate", countsPerRev);
+        telemetry.addData("Achievable Tics", achievableCountsPerRev);
+        telemetry.addData("Tic Rate", countsPerRev);
+        telemetry.addData("Tics Per Rev", ticsPerRev);
         telemetry.addData("Encoder Rate", encoderRate);
         telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
@@ -118,6 +121,7 @@ public class RHSDetectMotorType extends LinearOpMode {
             // Display the current value
             telemetry.addData("Motor Power", "%5.2f", power);
             telemetry.addData("Tick Rate", countsPerRev);
+            telemetry.addData("Encoder Rate", encoderRate);
             telemetry.addData("Velocity", velocity);
             telemetry.addData("Acceleration", motor.getAcceleration());
             telemetry.addData(">", "Press Stop to end test.");
