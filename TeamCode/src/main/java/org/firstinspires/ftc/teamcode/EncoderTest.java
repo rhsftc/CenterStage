@@ -50,7 +50,7 @@ public class EncoderTest extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private GamepadEx gamePad;
     private DcMotorEx motor;
-    private final float ENCODER_INCREMENT = 145.1f * 10f; // Ten revolutions
+    private final float ENCODER_INCREMENT = 1120f * 10f; // Ten revolutions
     private PIDFCoefficients pidfCoefficients;
 
     /**

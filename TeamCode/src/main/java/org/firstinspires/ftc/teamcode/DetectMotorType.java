@@ -29,18 +29,17 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 /**
- * This OpMode ramps a single motor speed up and down repeatedly until Stop is pressed.
+ * This op mode gets information about the connected motor.
  * The code is structured as a LinearOpMode
  * <p>
  * This code assumes a DC motor configured with the name "motor" as is found on a Robot.
@@ -50,9 +49,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  * <p>
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@TeleOp(name = "Detect Motor Type", group = "Test")
+@TeleOp(name = "Detect Motor", group = "Test")
 //@Disabled
-public class RHSDetectMotorType extends LinearOpMode {
+public class DetectMotorType extends LinearOpMode {
 
     private static final double INCREMENT = 0.01;     // amount to ramp motor each CYCLE_MS cycle
     private static final int CYCLE_MS = 50;     // period of each cycle
@@ -61,20 +60,16 @@ public class RHSDetectMotorType extends LinearOpMode {
     private ElapsedTime timer;
 
     // Define class members
-    private MotorEx motor;
+    private DcMotorEx motor;
     // Motor information
-    private HardwareDevice.Manufacturer manufacturer;
+    private MotorConfigurationType type;
     private double maxRPM;
     double maxVelocity = 0;
     private double velocity;
-    private double achievableCountsPerRev;
-    private double countsPerRev;
+    private double achievableTicsPerSecond;
     private double ticsPerRev;
-    private double encoderRate;
     private int currentPosition;
-    private double revolutions;
     private double current;
-    private MotorConfigurationType type;
     private double power = 0;
     private boolean rampUp = true;
 
@@ -82,30 +77,25 @@ public class RHSDetectMotorType extends LinearOpMode {
     public void runOpMode() {
         timer = new ElapsedTime();
         // Change the text in quotes to match any motor name on your robot.
-        motor = new MotorEx(hardwareMap, "motor");
-        motor.setRunMode(Motor.RunMode.VelocityControl);
-        motor.stopAndResetEncoder();
-        type = motor.motorEx.getMotorType();
-        manufacturer = motor.motor.getManufacturer();
-        maxRPM = motor.getMaxRPM();
-        achievableCountsPerRev = motor.ACHIEVABLE_MAX_TICKS_PER_SECOND;
-        countsPerRev = motor.getCPR();
-        encoderRate = motor.getRate();
-        ticsPerRev = motor.motorEx.getMotorType().getTicksPerRev();
+        motor =  hardwareMap.get(DcMotorEx.class, "motor");
+        type = motor.getMotorType();
+        maxRPM = type.getMaxRPM();
+        achievableTicsPerSecond = type.getAchieveableMaxTicksPerSecond();
+        ticsPerRev = type.getTicksPerRev();
         getMaxVelocity();
 
         // Wait for the start button
         telemetry.addData("Device Type", type.getName());
-        telemetry.addData("Manufacturer", manufacturer);
         telemetry.addData("RPM", "%5.2f", maxRPM);
         telemetry.addData("Max Velocity", maxVelocity);
-        telemetry.addData("Achievable Tics", "%5.2f", achievableCountsPerRev);
+        telemetry.addData("Achievable Tics per Second", "%5.2f", achievableTicsPerSecond);
         telemetry.addData("Tics Per Rev", "%5.2f", ticsPerRev);
-        telemetry.addData("Tic Rate", "%5.2f", countsPerRev);
-        telemetry.addData("Encoder Rate", "%5.2f", encoderRate);
+        telemetry.addData("Current Position", currentPosition);
         telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
         waitForStart();
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Ramp motor speeds till stop pressed.
         while (opModeIsActive()) {
@@ -128,24 +118,17 @@ public class RHSDetectMotorType extends LinearOpMode {
             }
 
             // Set the motor to the new power and pause;
-            motor.set(power);
+            motor.setPower(power);
             sleep(CYCLE_MS);
 
-            countsPerRev = motor.getCPR();
-            encoderRate = motor.getRate();
             velocity = motor.getVelocity();
             currentPosition = motor.getCurrentPosition();
-            revolutions = motor.encoder.getRevolutions();
-            current = motor.motorEx.getCurrent(CurrentUnit.MILLIAMPS);
+            current = motor.getCurrent(CurrentUnit.MILLIAMPS);
 
             // Display the current value
             telemetry.addData("Motor Power", "%5.2f", power);
-            telemetry.addData("Tick Rate", "%5.2f", countsPerRev);
-            telemetry.addData("Encoder Rate", "%5.2f", encoderRate);
-            telemetry.addData("Velocity", "%5.2f", velocity);
-            telemetry.addData("Acceleration", "%5.2f", motor.getAcceleration());
             telemetry.addData("Current Position", currentPosition);
-            telemetry.addData("Revolutions", "%5.2f", revolutions);
+            telemetry.addData("Velocity (Tics per Second)", "%5.2f", velocity);
             telemetry.addData("Current (milli amps)", "%5.2f", current);
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
@@ -153,14 +136,15 @@ public class RHSDetectMotorType extends LinearOpMode {
         }
 
         // Turn off motor and signal done;
-        motor.set(0);
+        motor.setPower(0);
         telemetry.addData(">", "Done");
         telemetry.update();
     }
 
     private void getMaxVelocity() {
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setPower(1);
         timer.reset();
-        motor.set(1);
         while (timer.seconds() < 4 && !isStopRequested()) {
             velocity = motor.getVelocity();
             if (velocity > maxVelocity) {
@@ -168,9 +152,10 @@ public class RHSDetectMotorType extends LinearOpMode {
             }
             telemetry.addData("current velocity", velocity);
             telemetry.addData("maximum velocity", maxVelocity);
+            telemetry.addData("Power", motor.getPower());
             telemetry.update();
         }
 
-        motor.stopMotor();
+        motor.setPower(0);
     }
 }
