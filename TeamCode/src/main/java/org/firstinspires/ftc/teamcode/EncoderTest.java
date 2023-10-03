@@ -50,8 +50,8 @@ public class EncoderTest extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private GamepadEx gamePad;
     private DcMotorEx motor;
-    private final float ENCODER_INCREMENT = 1120f * 10f; // Ten revolutions
-    private PIDFCoefficients pidfCoefficients;
+    private final float ENCODER_INCREMENT = 1120f * 5; // Ten revolutions
+    private PIDFCoefficients pidfVelocityCoefficients;
 
     /**
      * This method will be called once, when the INIT button is pressed.
@@ -67,16 +67,13 @@ public class EncoderTest extends OpMode {
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        pidfCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-        pidfCoefficients.p = 1.17f;
-        pidfCoefficients.i = 1.17f;
-        pidfCoefficients.f = 11.7f;
-//        pidfCoefficients.p = 2f;
-//        pidfCoefficients.i = .5f;
-//        pidfCoefficients.f = 11f;
-        motor.setVelocityPIDFCoefficients(pidfCoefficients.p, pidfCoefficients.i, pidfCoefficients.d, pidfCoefficients.f);
-        motor.setPositionPIDFCoefficients(5f);
-//        motor.setTargetPositionTolerance(10);
+        pidfVelocityCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        pidfVelocityCoefficients.p = 1.063f;
+        pidfVelocityCoefficients.i = 1.063f;
+        pidfVelocityCoefficients.f = 10.63f;
+        motor.setVelocityPIDFCoefficients(pidfVelocityCoefficients.p, pidfVelocityCoefficients.i, pidfVelocityCoefficients.d, pidfVelocityCoefficients.f);
+        motor.setPositionPIDFCoefficients(10f);
+        motor.setTargetPositionTolerance(10);
     }
 
     /**
