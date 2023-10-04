@@ -31,7 +31,7 @@ public class SetVelocityPIDF extends LinearOpMode {
         while (opModeIsActive()) {
             timer.reset();
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setPower(1);
@@ -40,8 +40,8 @@ public class SetVelocityPIDF extends LinearOpMode {
                 if (currentVelocity > maxVelocity) {
                     maxVelocity = currentVelocity;
                 }
-                telemetry.addData("current velocity", currentVelocity);
-                telemetry.addData("maximum velocity", maxVelocity);
+                telemetry.addData("current velocity", "%5.2f", currentVelocity);
+                telemetry.addData("maximum velocity", "%5.2f", maxVelocity);
                 telemetry.update();
             }
 
@@ -53,7 +53,7 @@ public class SetVelocityPIDF extends LinearOpMode {
             sleep(2000);
             runVelocity = maxVelocity * .75;
             targetPosition = motor.getCurrentPosition() + 8000;
-            motor.setTargetPosition((int) targetPosition);
+            motor.setTargetPosition(targetPosition);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setVelocityPIDFCoefficients(pidfP, pidfI, pidfD, pidfF);
             motor.setPositionPIDFCoefficients(10);
@@ -63,17 +63,18 @@ public class SetVelocityPIDF extends LinearOpMode {
                 currentPosition = motor.getCurrentPosition();
                 currentVelocity = motor.getVelocity();
                 telemetry.addData("PIDF", "P=%g I=%g D=%g F=%g", pidfP, pidfI, pidfD, pidfF);
-                telemetry.addData("Run to position, velocity ", runVelocity);
-                telemetry.addData("Target", targetPosition);
-                telemetry.addData("current position", currentPosition);
-                telemetry.addData("current velocity", currentVelocity);
+                telemetry.addData("Run to position, velocity ",  runVelocity);
+                telemetry.addData("Target", "%d", targetPosition);
+                telemetry.addData("current position", "%d", currentPosition);
+                telemetry.addData("current velocity",  currentVelocity);
+                telemetry.addData("Power",  motor.getPower());
                 telemetry.addData("Busy", motor.isBusy());
                 telemetry.update();
                 LogData();
             }
 
             while (opModeIsActive()) {
-                telemetry.addData("Position Tolerance", targetPosition - currentPosition);
+                telemetry.addData("Position Error", targetPosition - currentPosition);
                 telemetry.addData("PIDF", "P=%g I=%g D=%g F=%g", pidfP, pidfI, pidfD, pidfF);
                 telemetry.update();
                 idle();

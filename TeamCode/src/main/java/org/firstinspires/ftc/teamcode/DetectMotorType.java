@@ -65,7 +65,7 @@ public class DetectMotorType extends LinearOpMode {
     private MotorConfigurationType type;
     private double maxRPM;
     double maxVelocity = 0;
-    private double velocity;
+    private double velocity = 0;
     private double achievableTicsPerSecond;
     private double ticsPerRev;
     private int currentPosition;
@@ -77,7 +77,7 @@ public class DetectMotorType extends LinearOpMode {
     public void runOpMode() {
         timer = new ElapsedTime();
         // Change the text in quotes to match any motor name on your robot.
-        motor =  hardwareMap.get(DcMotorEx.class, "motor");
+        motor = hardwareMap.get(DcMotorEx.class, "motor");
         type = motor.getMotorType();
         maxRPM = type.getMaxRPM();
         achievableTicsPerSecond = type.getAchieveableMaxTicksPerSecond();
@@ -87,10 +87,10 @@ public class DetectMotorType extends LinearOpMode {
         // Wait for the start button
         telemetry.addData("Device Type", type.getName());
         telemetry.addData("RPM", "%5.2f", maxRPM);
-        telemetry.addData("Max Velocity", maxVelocity);
+        telemetry.addData("Max Velocity", "%5.2f", maxVelocity);
         telemetry.addData("Achievable Tics per Second", "%5.2f", achievableTicsPerSecond);
         telemetry.addData("Tics Per Rev", "%5.2f", ticsPerRev);
-        telemetry.addData("Current Position", currentPosition);
+        telemetry.addData("Current Position", "%d", currentPosition);
         telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
         waitForStart();
@@ -103,32 +103,32 @@ public class DetectMotorType extends LinearOpMode {
             // Ramp the motors, according to the rampUp variable.
             if (rampUp) {
                 // Keep stepping up until we hit the max value.
-                power += INCREMENT;
-                if (power >= MAX_FWD) {
-                    power = MAX_FWD;
+                velocity += INCREMENT * maxVelocity;
+                if (velocity >= maxVelocity) {
+                    velocity = maxVelocity;
                     rampUp = !rampUp;   // Switch ramp direction
                 }
             } else {
                 // Keep stepping down until we hit the min value.
-                power -= INCREMENT;
-                if (power <= MAX_REV) {
-                    power = MAX_REV;
+                velocity -= INCREMENT * maxVelocity;
+                if (velocity <= -maxVelocity) {
+                    velocity = -maxVelocity;
                     rampUp = !rampUp;  // Switch ramp direction
                 }
             }
 
             // Set the motor to the new power and pause;
-            motor.setPower(power);
+            motor.setVelocity(velocity);
             sleep(CYCLE_MS);
 
-            velocity = motor.getVelocity();
+            power = motor.getPower();
             currentPosition = motor.getCurrentPosition();
             current = motor.getCurrent(CurrentUnit.MILLIAMPS);
 
             // Display the current value
             telemetry.addData("Motor Power", "%5.2f", power);
-            telemetry.addData("Current Position", currentPosition);
-            telemetry.addData("Velocity (Tics per Second)", "%5.2f", velocity);
+            telemetry.addData("Current Position", "%d", currentPosition);
+            telemetry.addData("Velocity (Tics per Second)", "%5.2f", motor.getVelocity());
             telemetry.addData("Current (milli amps)", "%5.2f", current);
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
@@ -150,9 +150,9 @@ public class DetectMotorType extends LinearOpMode {
             if (velocity > maxVelocity) {
                 maxVelocity = velocity;
             }
-            telemetry.addData("current velocity", velocity);
-            telemetry.addData("maximum velocity", maxVelocity);
-            telemetry.addData("Power", motor.getPower());
+            telemetry.addData("current velocity", "%5.2f", velocity);
+            telemetry.addData("maximum velocity", "%5.2f", maxVelocity);
+            telemetry.addData("Power", "%5.2f", motor.getPower());
             telemetry.update();
         }
 
