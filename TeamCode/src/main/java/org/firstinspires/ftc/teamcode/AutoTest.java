@@ -20,6 +20,16 @@ public class AutoTest extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+
+    }
+
+    @Override
+    public void start() {
+        telemetry.addData("Identified", imageProcessor.getSelection());
+    }
+
+    @Override
     public void loop() {
 
     }
