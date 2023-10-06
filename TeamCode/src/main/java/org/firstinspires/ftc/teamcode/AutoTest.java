@@ -11,26 +11,40 @@ import org.firstinspires.ftc.vision.VisionPortal;
 //@Disabled
 public class AutoTest extends OpMode {
     private ImageProcessor imageProcessor;
+    private VisionPortal.Builder visionPortalBuilder;
     private VisionPortal visionPortal;
+    private ImageProcessor.Selected selectedSpike;
 
     @Override
     public void init() {
         imageProcessor = new ImageProcessor();
-        visionPortal = VisionPortal.easyCreateWithDefaults(hardwareMap.get(WebcamName.class, "webcam1"));
+        visionPortalBuilder = new VisionPortal.Builder();
+        visionPortal = visionPortalBuilder.enableLiveView(true).
+                setStreamFormat(VisionPortal.StreamFormat.MJPEG).
+                setAutoStopLiveView(true).
+                setCamera(hardwareMap.get(WebcamName.class, "webcam1")).
+                addProcessor(imageProcessor).
+                build();
     }
 
     @Override
     public void init_loop() {
-
+        telemetry.addData("Init Identified", imageProcessor.getSelection());
+        telemetry.update();
     }
 
     @Override
     public void start() {
-        telemetry.addData("Identified", imageProcessor.getSelection());
+        selectedSpike=imageProcessor.getSelection();
+        telemetry.addData("Start Identified", selectedSpike);
+        telemetry.update();
+        // Save resources
+        visionPortal.setProcessorEnabled(imageProcessor,false);
+        visionPortal.stopStreaming();
     }
 
     @Override
     public void loop() {
-
+        // Do your paths here.
     }
 }
