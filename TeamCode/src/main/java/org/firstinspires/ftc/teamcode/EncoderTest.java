@@ -52,6 +52,7 @@ public class EncoderTest extends OpMode {
     private DcMotorEx motor;
     private final float ENCODER_INCREMENT = 1120f * 5; // Ten revolutions
     private final double MAX_VELOCITY = 2900;
+    private double RUN_VELOCITY = MAX_VELOCITY * .7f;
     private PIDFCoefficients pidfVelocityCoefficients;
 
     /**
@@ -92,6 +93,8 @@ public class EncoderTest extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     /**
@@ -105,13 +108,13 @@ public class EncoderTest extends OpMode {
         if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
             motor.setTargetPosition((int) (motor.getCurrentPosition() + ENCODER_INCREMENT));
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setVelocity(.8 * MAX_VELOCITY);
+            motor.setVelocity(RUN_VELOCITY);
         }
 
         if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
             motor.setTargetPosition((int) (motor.getCurrentPosition() - ENCODER_INCREMENT));
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setVelocity(.8 * MAX_VELOCITY);
+            motor.setVelocity(RUN_VELOCITY);
         }
 
         telemetry.addData("Target", "%d", motor.getTargetPosition());

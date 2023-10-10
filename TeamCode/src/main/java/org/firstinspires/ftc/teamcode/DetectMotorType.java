@@ -54,9 +54,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 public class DetectMotorType extends LinearOpMode {
 
     private static final double INCREMENT = 0.01;     // amount to ramp motor each CYCLE_MS cycle
-    private static final int CYCLE_MS = 50;     // period of each cycle
-    private static final double MAX_FWD = 1.0;     // Maximum FWD power applied to motor
-    private static final double MAX_REV = -1.0;     // Maximum REV power applied to motor
+    private static final int CYCLE_MS = 25;     // period of each cycle
+    private static final int PAUSE_MS = 1000;   // pause between direction switches
     private ElapsedTime timer;
 
     // Define class members
@@ -95,7 +94,8 @@ public class DetectMotorType extends LinearOpMode {
         telemetry.update();
         waitForStart();
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
 
         // Ramp motor speeds till stop pressed.
         while (opModeIsActive()) {
@@ -107,6 +107,7 @@ public class DetectMotorType extends LinearOpMode {
                 if (velocity >= maxVelocity) {
                     velocity = maxVelocity;
                     rampUp = !rampUp;   // Switch ramp direction
+                    sleep(CYCLE_MS);
                 }
             } else {
                 // Keep stepping down until we hit the min value.
@@ -114,6 +115,7 @@ public class DetectMotorType extends LinearOpMode {
                 if (velocity <= -maxVelocity) {
                     velocity = -maxVelocity;
                     rampUp = !rampUp;  // Switch ramp direction
+                    sleep(CYCLE_MS);
                 }
             }
 
@@ -127,8 +129,8 @@ public class DetectMotorType extends LinearOpMode {
 
             // Display the current value
             telemetry.addData("Motor Power", "%5.2f", power);
+            telemetry.addData("Velocity (Tics per Second)", "%5.2f", velocity);
             telemetry.addData("Current Position", "%d", currentPosition);
-            telemetry.addData("Velocity (Tics per Second)", "%5.2f", motor.getVelocity());
             telemetry.addData("Current (milli amps)", "%5.2f", current);
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
@@ -157,5 +159,6 @@ public class DetectMotorType extends LinearOpMode {
         }
 
         motor.setPower(0);
+        velocity = 0;
     }
 }
