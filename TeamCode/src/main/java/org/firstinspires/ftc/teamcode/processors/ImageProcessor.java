@@ -12,9 +12,9 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProcessor {
-    public Rect rectLeft = new Rect(140, 42, 40, 40);
-    public Rect rectMiddle = new Rect(300, 42, 40, 40);
-    public Rect rectRight = new Rect(440, 42, 40, 40);
+    public Rect rectLeft = new Rect(130, 250, 40, 40);
+    public Rect rectMiddle = new Rect(290, 250, 40, 40);
+    public Rect rectRight = new Rect(470, 250, 40, 40);
     Selected selection = Selected.NONE;
 
     Mat submat = new Mat();
