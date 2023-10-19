@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -16,10 +17,13 @@ public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProces
     public Rect rectMiddle = new Rect(290, 250, 40, 40);
     public Rect rectRight = new Rect(470, 250, 40, 40);
     Selected selection = Selected.NONE;
-
+    Telemetry telemetry;
     Mat submat = new Mat();
     Mat hsvMat = new Mat();
 
+    public ImageProcessor(Telemetry telemetry) {
+        this.telemetry = telemetry;
+    }
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
