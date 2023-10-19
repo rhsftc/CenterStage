@@ -23,7 +23,7 @@ public class AutoTestEOCV extends OpMode {
         visionPortal = visionPortalBuilder.enableLiveView(true).
 //                setStreamFormat(VisionPortal.StreamFormat.MJPEG).
 //        setAutoStopLiveView(true).
-        setCamera(hardwareMap.get(WebcamName.class, "1")).
+        setCamera(hardwareMap.get(WebcamName.class, "0")).
                 addProcessor(imageProcessor).
                 setCameraResolution(new Size(640, 480)).
                 build();

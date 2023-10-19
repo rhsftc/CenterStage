@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -21,6 +23,7 @@ public class AutoTest extends OpMode {
         visionPortalBuilder = new VisionPortal.Builder();
         visionPortal = visionPortalBuilder.enableLiveView(true).
                 setStreamFormat(VisionPortal.StreamFormat.MJPEG).
+                setCameraResolution(new Size(640,480)).
                 setAutoStopLiveView(true).
                 setCamera(hardwareMap.get(WebcamName.class, "webcam1")).
                 addProcessor(imageProcessor).
@@ -39,12 +42,14 @@ public class AutoTest extends OpMode {
         telemetry.addData("Start Identified", selectedSpike);
         telemetry.update();
         // Save resources
-        visionPortal.setProcessorEnabled(imageProcessor,false);
-        visionPortal.stopStreaming();
+//        visionPortal.setProcessorEnabled(imageProcessor,false);
+//        visionPortal.stopStreaming();
     }
 
     @Override
     public void loop() {
+        telemetry.addData("Identified",imageProcessor.getSelection());
+        telemetry.update();
         // Do your paths here.
     }
 }
