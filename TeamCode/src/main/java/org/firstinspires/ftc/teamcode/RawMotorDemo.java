@@ -44,7 +44,8 @@ public class RawMotorDemo extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         DcMotorEx myMotor = hardwareMap.get(DcMotorEx.class, "motor");
         myMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        myMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        myMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        myMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 

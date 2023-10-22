@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -67,6 +68,8 @@ public class DetectMotorType extends LinearOpMode {
     private double maxRPM;
     double maxVelocity = 0;
     private double velocity = 0;
+    private PIDFCoefficients pidfCoefficentsRunToPosition;
+    private PIDFCoefficients pidfCoefficientsRunUsing;
     private double achievableTicsPerSecond;
     private double ticsPerRev;
     private int currentPosition;
@@ -86,20 +89,24 @@ public class DetectMotorType extends LinearOpMode {
         ticsPerRev = type.getTicksPerRev();
         currentPosition = motor.getCurrentPosition();
         getMaxVelocity();
+        pidfCoefficentsRunToPosition = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION);
+        pidfCoefficientsRunUsing = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         telemetry.addData("Device Type", type.getName());
         telemetry.addData("RPM", "%5.2f", maxRPM);
         telemetry.addData("Max Velocity", "%5.2f", maxVelocity);
         telemetry.addData("Achievable Tics per Second", "%5.2f", achievableTicsPerSecond);
         telemetry.addData("Tics Per Rev", "%5.2f", ticsPerRev);
         telemetry.addData("Current Position", "%d", currentPosition);
+        telemetry.addData("PIDF Run Using", pidfCoefficientsRunUsing);
+        telemetry.addData("PIDF Run To Position", pidfCoefficentsRunToPosition);
         telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
-        
+
         // Wait for the start button
         waitForStart();
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
-                motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficientsRunUsing);
 
         // Ramp motor speeds till stop pressed.
         while (opModeIsActive()) {
@@ -111,7 +118,6 @@ public class DetectMotorType extends LinearOpMode {
                 if (velocity >= maxVelocity) {
                     velocity = maxVelocity;
                     rampUp = !rampUp; // Switch ramp direction
-                    sleep(CYCLE_MS);
                 }
             } else {
                 // Keep stepping down until we hit the min value.
@@ -119,7 +125,6 @@ public class DetectMotorType extends LinearOpMode {
                 if (velocity <= -maxVelocity) {
                     velocity = -maxVelocity;
                     rampUp = !rampUp; // Switch ramp direction
-                    sleep(CYCLE_MS);
                 }
             }
 
