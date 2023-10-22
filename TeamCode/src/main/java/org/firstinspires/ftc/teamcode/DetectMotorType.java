@@ -42,20 +42,22 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  * This op mode gets information about the connected motor.
  * The code is structured as a LinearOpMode
  * <p>
- * This code assumes a DC motor configured with the name "motor" as is found on a Robot.
+ * This code assumes a DC motor configured with the name "motor" as is found on
+ * a Robot.
  * <p>
  * INCREMENT sets how much to increase/decrease the power each cycle
  * CYCLE_MS sets the update period.
  * <p>
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ * Remove or comment out the @Disabled line to add this opmode to the Driver
+ * Station OpMode list
  */
 @TeleOp(name = "Detect Motor", group = "Test")
-//@Disabled
+// @Disabled
 public class DetectMotorType extends LinearOpMode {
 
-    private static final double INCREMENT = 0.01;     // amount to ramp motor each CYCLE_MS cycle
-    private static final int CYCLE_MS = 25;     // period of each cycle
-    private static final int PAUSE_MS = 1000;   // pause between direction switches
+    private static final double INCREMENT = 0.01; // amount to ramp motor each CYCLE_MS cycle
+    private static final int CYCLE_MS = 25; // period of each cycle
+    private static final int PAUSE_MS = 1000; // pause between direction switches
     private ElapsedTime timer;
 
     // Define class members
@@ -77,13 +79,13 @@ public class DetectMotorType extends LinearOpMode {
         timer = new ElapsedTime();
         // Change the text in quotes to match any motor name on your robot.
         motor = hardwareMap.get(DcMotorEx.class, "motor");
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         type = motor.getMotorType();
         maxRPM = type.getMaxRPM();
         achievableTicsPerSecond = type.getAchieveableMaxTicksPerSecond();
         ticsPerRev = type.getTicksPerRev();
+        currentPosition = motor.getCurrentPosition();
         getMaxVelocity();
-
-        // Wait for the start button
         telemetry.addData("Device Type", type.getName());
         telemetry.addData("RPM", "%5.2f", maxRPM);
         telemetry.addData("Max Velocity", "%5.2f", maxVelocity);
@@ -92,10 +94,12 @@ public class DetectMotorType extends LinearOpMode {
         telemetry.addData("Current Position", "%d", currentPosition);
         telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
+        
+        // Wait for the start button
         waitForStart();
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
 
         // Ramp motor speeds till stop pressed.
         while (opModeIsActive()) {
@@ -106,7 +110,7 @@ public class DetectMotorType extends LinearOpMode {
                 velocity += INCREMENT * maxVelocity;
                 if (velocity >= maxVelocity) {
                     velocity = maxVelocity;
-                    rampUp = !rampUp;   // Switch ramp direction
+                    rampUp = !rampUp; // Switch ramp direction
                     sleep(CYCLE_MS);
                 }
             } else {
@@ -114,7 +118,7 @@ public class DetectMotorType extends LinearOpMode {
                 velocity -= INCREMENT * maxVelocity;
                 if (velocity <= -maxVelocity) {
                     velocity = -maxVelocity;
-                    rampUp = !rampUp;  // Switch ramp direction
+                    rampUp = !rampUp; // Switch ramp direction
                     sleep(CYCLE_MS);
                 }
             }

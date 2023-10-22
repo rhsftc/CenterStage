@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@TeleOp(name = "Raw Motor",group = "test")
+@TeleOp(name = "Raw Motor",group = "Test")
 public class RawMotorDemo extends LinearOpMode {
     public static double MOTOR_TICKS_PER_REV = 145.1;
     public static double MOTOR_MAX_RPM = 1150;
