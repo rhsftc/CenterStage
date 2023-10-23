@@ -1,18 +1,26 @@
 package org.firstinspires.ftc.teamcode.processors;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.function.Consumer;
+import org.firstinspires.ftc.robotcore.external.function.Continuation;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProcessor {
+import java.util.concurrent.atomic.AtomicReference;
+
+public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProcessor, CameraStreamSource {
+    private final AtomicReference<Bitmap> lastFrame = new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
     public Rect rectLeft = new Rect(130, 250, 40, 40);
     public Rect rectMiddle = new Rect(290, 250, 40, 40);
     public Rect rectRight = new Rect(470, 250, 40, 40);
@@ -32,6 +40,9 @@ public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProces
 
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos) {
+        Bitmap b = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565);
+        Utils.matToBitmap(frame, b);
+        lastFrame.set(b);
         Imgproc.cvtColor(frame, hsvMat, Imgproc.COLOR_RGB2HSV);
         double satRectLeft = getAvgSaturation(hsvMat, rectLeft);
         double satRectMiddle = getAvgSaturation(hsvMat, rectMiddle);
@@ -106,6 +117,11 @@ public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProces
 
     public Selected getSelection() {
         return selection;
+    }
+
+    @Override
+    public void getFrameBitmap(Continuation<? extends Consumer<Bitmap>> continuation) {
+        continuation.dispatch(bitmapConsumer -> bitmapConsumer.accept(lastFrame.get()));
     }
 
     public enum Selected {

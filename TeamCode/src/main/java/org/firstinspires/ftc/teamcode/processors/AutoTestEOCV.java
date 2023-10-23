@@ -2,18 +2,25 @@ package org.firstinspires.ftc.teamcode.processors;
 
 import android.util.Size;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.CameraControl;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.vision.VisionPortal;
 
+@Config
 @Autonomous(name = "Auto", group = "Sim")
 //@Disabled
 public class AutoTestEOCV extends OpMode {
     private ImageProcessor imageProcessor;
     private VisionPortal.Builder visionPortalBuilder;
     private VisionPortal visionPortal;
+    FtcDashboard dashboard;
     private ImageProcessor.Selected selectedSpike;
 
     @Override
@@ -21,12 +28,14 @@ public class AutoTestEOCV extends OpMode {
         imageProcessor = new ImageProcessor(telemetry);
         visionPortalBuilder = new VisionPortal.Builder();
         visionPortal = visionPortalBuilder.enableLiveView(true).
-//                setStreamFormat(VisionPortal.StreamFormat.MJPEG).
-//        setAutoStopLiveView(true).
-        setCamera(hardwareMap.get(WebcamName.class, "0")).
+                setCamera(hardwareMap.get(WebcamName.class, "0")).
                 addProcessor(imageProcessor).
                 setCameraResolution(new Size(640, 480)).
                 build();
+        FtcDashboard.getInstance().startCameraStream(imageProcessor, 0);
+//        dashboard = FtcDashboard.getInstance();
+//        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+//        telemetry.update();
     }
 
     @Override
