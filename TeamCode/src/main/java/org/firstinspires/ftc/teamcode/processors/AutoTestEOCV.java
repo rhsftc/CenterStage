@@ -2,22 +2,18 @@ package org.firstinspires.ftc.teamcode.processors;
 
 import android.util.Size;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@Config
 @Autonomous(name = "Auto EOCV-SIM", group = "Sim")
 //@Disabled
 public class AutoTestEOCV extends OpMode {
     private ImageProcessor imageProcessor;
     private VisionPortal.Builder visionPortalBuilder;
     private VisionPortal visionPortal;
-    FtcDashboard dashboard;
     private ImageProcessor.Selected selectedSpike;
 
     @Override
