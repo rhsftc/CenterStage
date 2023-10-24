@@ -4,13 +4,10 @@ import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.CameraControl;
-import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 @Config
@@ -29,13 +26,9 @@ public class AutoTestEOCV extends OpMode {
         visionPortalBuilder = new VisionPortal.Builder();
         visionPortal = visionPortalBuilder.enableLiveView(true).
                 addProcessor(imageProcessor).
-                setCamera(hardwareMap.get(WebcamName.class, "webcam1")).
+                setCamera(hardwareMap.get(WebcamName.class, "0")).
                 setCameraResolution(new Size(640, 480)).
                 build();
-        FtcDashboard.getInstance().startCameraStream(imageProcessor, 0);
-//        dashboard = FtcDashboard.getInstance();
-//        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
-//        telemetry.update();
     }
 
     @Override

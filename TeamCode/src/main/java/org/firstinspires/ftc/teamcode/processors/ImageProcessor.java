@@ -19,8 +19,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProcessor, CameraStreamSource {
-    private final AtomicReference<Bitmap> lastFrame = new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
+public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProcessor {
     public Rect rectLeft = new Rect(130, 250, 40, 40);
     public Rect rectMiddle = new Rect(290, 250, 40, 40);
     public Rect rectRight = new Rect(470, 250, 40, 40);
@@ -35,14 +34,11 @@ public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProces
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-        lastFrame.set(Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565));
+
     }
 
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos) {
-        Bitmap b = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565);
-        Utils.matToBitmap(frame, b);
-        lastFrame.set(b);
         Imgproc.cvtColor(frame, hsvMat, Imgproc.COLOR_RGB2HSV);
         double satRectLeft = getAvgSaturation(hsvMat, rectLeft);
         double satRectMiddle = getAvgSaturation(hsvMat, rectMiddle);
@@ -117,11 +113,6 @@ public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProces
 
     public Selected getSelection() {
         return selection;
-    }
-
-    @Override
-    public void getFrameBitmap(Continuation<? extends Consumer<Bitmap>> continuation) {
-        continuation.dispatch(bitmapConsumer -> bitmapConsumer.accept(lastFrame.get()));
     }
 
     public enum Selected {
