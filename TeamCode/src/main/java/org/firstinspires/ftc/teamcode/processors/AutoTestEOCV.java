@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 @Config
-@Autonomous(name = "Auto", group = "Sim")
+@Autonomous(name = "Auto EOCV-SIM", group = "Sim")
 //@Disabled
 public class AutoTestEOCV extends OpMode {
     private ImageProcessor imageProcessor;
@@ -28,8 +28,8 @@ public class AutoTestEOCV extends OpMode {
         imageProcessor = new ImageProcessor(telemetry);
         visionPortalBuilder = new VisionPortal.Builder();
         visionPortal = visionPortalBuilder.enableLiveView(true).
-                setCamera(hardwareMap.get(WebcamName.class, "0")).
                 addProcessor(imageProcessor).
+                setCamera(hardwareMap.get(WebcamName.class, "webcam1")).
                 setCameraResolution(new Size(640, 480)).
                 build();
         FtcDashboard.getInstance().startCameraStream(imageProcessor, 0);

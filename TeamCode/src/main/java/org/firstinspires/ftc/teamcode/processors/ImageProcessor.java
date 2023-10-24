@@ -35,7 +35,7 @@ public class ImageProcessor implements org.firstinspires.ftc.vision.VisionProces
 
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
-
+        lastFrame.set(Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565));
     }
 
     @Override
