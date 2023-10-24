@@ -29,7 +29,6 @@ public class AutoTest extends OpMode {
                 setCamera(hardwareMap.get(WebcamName.class, "webcam1")).
                 addProcessor(imageProcessor).
                 build();
-        FtcDashboard.getInstance().startCameraStream(imageProcessor, 0);
     }
 
     @Override
