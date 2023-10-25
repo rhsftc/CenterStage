@@ -7,25 +7,31 @@ import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 public class MeepMeepTesting {
+
     public static void main(String[] args) {
+        Pose2d homePose = new Pose2d(-35, -60,Math.toRadians(90));
         MeepMeep meepMeep = new MeepMeep(640);
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-35, -60, Math.toRadians(90)))
+                        drive.trajectorySequenceBuilder(homePose)
                                 .forward(30)
-                                .forward(-5)
+                                .back(5)
                                 .turn(Math.toRadians(-90))
-                                .forward(75)
-                                .setTangent(-90)
-                                .splineTo(new Vector2d(40,40), Math.toRadians(-45))
-//                                .turn(Math.toRadians(-90))
-//                                .forward(30)
-//                                .turn(Math.toRadians(-90))
-//                                .forward(30)
-//                                .turn(Math.toRadians(-90))
+                                .forward(80)
+                                .splineToLinearHeading(homePose, Math.toRadians(90))
+                                .splineTo(new Vector2d(-46, -30), Math.toRadians(90))
+                                .back(5)
+                                .turn(Math.toRadians(-90))
+                                .forward(90)
+                                .splineToLinearHeading(homePose, Math.toRadians(90))
+                                .splineTo(new Vector2d(-24, -30), Math.toRadians(90))
+                                .back(5)
+                                .turn(Math.toRadians(-90))
+                                .forward(70)
+                                .splineToLinearHeading(homePose, Math.toRadians(90))
                                 .build()
                 );
 
