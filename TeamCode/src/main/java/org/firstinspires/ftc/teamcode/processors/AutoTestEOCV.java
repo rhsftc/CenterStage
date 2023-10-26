@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@Autonomous(name = "Auto EOCV-SIM", group = "Sim")
+@Autonomous(name = "Auto EOCV-SIM", group = "Camera")
 //@Disabled
 public class AutoTestEOCV extends OpMode {
     private ImageProcessor imageProcessor;

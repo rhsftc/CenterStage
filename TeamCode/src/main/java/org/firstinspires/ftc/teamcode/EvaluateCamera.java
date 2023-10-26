@@ -14,7 +14,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.concurrent.TimeUnit;
 
-@TeleOp(name = "Camera Evaluation", group = "Test")
+@TeleOp(name = "Camera Evaluation", group = "Camera")
 public class EvaluateCamera extends OpMode {
     VisionPortal portal;
     private boolean isManualExposureSupported = false;

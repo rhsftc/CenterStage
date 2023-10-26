@@ -48,7 +48,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name = "Options Menu", group = "Autonomous")
+@Autonomous(name = "Options Menu", group = "Test")
 //@Disabled
 public class AutoConfigMenu extends OpMode {
     AutonomousConfiguration autonomousConfiguration = new AutonomousConfiguration();
