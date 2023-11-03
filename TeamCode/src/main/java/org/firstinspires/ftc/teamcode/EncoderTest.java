@@ -43,7 +43,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 /*
- * Demonstrates an empty iterative OpMode
+ * OpMode for encoder testing
  */
 @TeleOp(name = "Encoder Test", group = "Test")
 //@Disabled
@@ -51,6 +51,7 @@ public class EncoderTest extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private GamepadEx gamePad;
     private DcMotorEx motor;
+    private final int LIMIT = 1400;
     private final float ENCODER_INCREMENT = 145.1f * 10f; // 10 revolutions
     private final double MAX_VELOCITY = 2900;
     private double RUN_VELOCITY = MAX_VELOCITY * .7f;
@@ -62,21 +63,17 @@ public class EncoderTest extends OpMode {
     @Override
     public void init() {
         telemetry.addData("Status", "Initialized");
-        telemetry.addLine("Dpad Up and Dpad Down");
         telemetry.update();
         gamePad = new GamepadEx(gamepad1);
         motor = hardwareMap.get(DcMotorEx.class, "motor");
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        pidfVelocityCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        pidfVelocityCoefficients = motor.getPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER);
         pidfVelocityCoefficients.p = 1.063f;
         pidfVelocityCoefficients.i = 1.063f;
         pidfVelocityCoefficients.f = 10.63f;
-        motor.setVelocityPIDFCoefficients(pidfVelocityCoefficients.p, pidfVelocityCoefficients.i, pidfVelocityCoefficients.d, pidfVelocityCoefficients.f);
-        motor.setPositionPIDFCoefficients(10f);
-        motor.setTargetPositionTolerance(5);
+        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfVelocityCoefficients);
     }
 
     /**
@@ -86,7 +83,7 @@ public class EncoderTest extends OpMode {
      */
     @Override
     public void init_loop() {
-        telemetry.addLine("Dpad Up and Dpad Down");
+        telemetry.addLine("Dpad left and Dpad right");
         telemetry.addData("Position", motor.getCurrentPosition());
         telemetry.update();
     }
@@ -98,6 +95,7 @@ public class EncoderTest extends OpMode {
     public void start() {
         runtime.reset();
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
@@ -108,26 +106,36 @@ public class EncoderTest extends OpMode {
     public void loop() {
         gamePad.readButtons();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
-            motor.setTargetPosition((int) (motor.getCurrentPosition() + ENCODER_INCREMENT));
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setVelocity(RUN_VELOCITY);
+        if (gamePad.isDown(GamepadKeys.Button.DPAD_LEFT)) {
+            if (motor.getCurrentPosition() >= -LIMIT) {
+                motor.setPower(-.8);
+            } else {
+                motor.setPower(0);
+            }
         }
 
-        if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
-            motor.setTargetPosition((int) (motor.getCurrentPosition() - ENCODER_INCREMENT));
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setVelocity(RUN_VELOCITY);
+        if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_LEFT)) {
+            motor.setPower(0);
         }
 
-        telemetry.addData("Target", "%d", motor.getTargetPosition());
+        if (gamePad.isDown(GamepadKeys.Button.DPAD_RIGHT)) {
+            if (motor.getCurrentPosition() <= LIMIT) {
+                motor.setPower(.8);
+            } else {
+                motor.setPower(0);
+            }
+        }
+
+        if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_RIGHT)) {
+            motor.setPower(0);
+        }
+
         telemetry.addData("Position", "%d", motor.getCurrentPosition());
         telemetry.addData("Velocity", "%6.2f", motor.getVelocity());
         telemetry.addData("Power", "%6.2f", motor.getPower());
         telemetry.addData("Busy", motor.isBusy());
         telemetry.addData("Current (milli amps)", "%6.2f", motor.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.addData("PIDF Run Using", motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
-        telemetry.addData("PIDF Run To Position", motor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
         telemetry.update();
     }
 
