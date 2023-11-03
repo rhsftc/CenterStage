@@ -34,6 +34,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -51,8 +53,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name = "Options Menu", group = "Test")
 //@Disabled
 public class AutoConfigMenu extends OpMode {
-    AutonomousConfiguration autonomousConfiguration = new AutonomousConfiguration();
     // Declare OpMode members.
+    AutonomousConfiguration autonomousConfiguration = new AutonomousConfiguration();
+    private Telemetry.Item teleMessage;
     private ElapsedTime runtime = new ElapsedTime();
     private GamepadEx gamepad;
 
@@ -62,6 +65,7 @@ public class AutoConfigMenu extends OpMode {
     @Override
     public void init() {
         gamepad = new GamepadEx(gamepad1);
+        teleMessage=telemetry.addData("Run Time", runtime);
         autonomousConfiguration.init(gamepad, this.telemetry, hardwareMap.appContext);
     }
 
@@ -71,6 +75,7 @@ public class AutoConfigMenu extends OpMode {
     @Override
     public void init_loop() {
         autonomousConfiguration.init_loop();
+        teleMessage.setValue(runtime);
     }
 
     /*
