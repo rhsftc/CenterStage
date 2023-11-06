@@ -16,6 +16,7 @@ public class AutoTestEOCV extends OpMode {
     private VisionPortal.Builder visionPortalBuilder;
     private VisionPortal visionPortal;
     private ImageProcessor.Selected selectedSpike;
+    private WhiteBalanceControl whiteBalanceControl;
 
     @Override
     public void init() {
@@ -34,24 +35,21 @@ public class AutoTestEOCV extends OpMode {
         // Wait for the camera to be open
         if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
             telemetry.addData("Camera", "Waiting");
-            telemetry.update();
-            while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            }
-            telemetry.addData("Camera", "Ready");
-            telemetry.update();
-            WhiteBalanceControl whiteBalanceControl = visionPortal.getCameraControl(WhiteBalanceControl.class);
+            return;
+        } else {
+            whiteBalanceControl = visionPortal.getCameraControl(WhiteBalanceControl.class);
+        }
+
+        if (whiteBalanceControl.getMode() != WhiteBalanceControl.Mode.AUTO) {
             whiteBalanceControl.setMode(WhiteBalanceControl.Mode.AUTO);
         }
 
         telemetry.addData("Init Identified", imageProcessor.getSelection());
-        telemetry.update();
     }
 
     @Override
     public void start() {
         selectedSpike = imageProcessor.getSelection();
-        telemetry.addData("Start Identified", selectedSpike);
-        telemetry.update();
         // Save resources
 //        visionPortal.setProcessorEnabled(imageProcessor, false);
 //        visionPortal.stopStreaming();
@@ -59,8 +57,7 @@ public class AutoTestEOCV extends OpMode {
 
     @Override
     public void loop() {
-        // Do your paths here.
         telemetry.addData("Identified", imageProcessor.getSelection());
-        telemetry.update();
+        // Do your paths here.
     }
 }
