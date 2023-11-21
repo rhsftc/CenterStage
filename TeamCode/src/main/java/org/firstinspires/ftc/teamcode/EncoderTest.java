@@ -45,7 +45,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 /*
  * Demonstrates an empty iterative OpMode
  */
-@TeleOp(name = "Encoder Test", group = "Test")
+@TeleOp(name = "Encoder Test", group = "Motor")
 //@Disabled
 public class EncoderTest extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();

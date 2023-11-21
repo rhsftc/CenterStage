@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "Set Velocity PIDF", group = "Test")
+@TeleOp(name = "Set Velocity PIDF", group = "Motor")
 //@Disabled
 public class SetVelocityPIDF extends LinearOpMode {
     DcMotorEx motor;
