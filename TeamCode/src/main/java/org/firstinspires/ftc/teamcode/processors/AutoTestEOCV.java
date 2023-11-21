@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.processors;
 
 import android.util.Size;
 
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -17,9 +19,11 @@ public class AutoTestEOCV extends OpMode {
     private VisionPortal visionPortal;
     private ImageProcessor.Selected selectedSpike;
     private WhiteBalanceControl whiteBalanceControl;
+    private GamepadEx gamepadEx;
 
     @Override
     public void init() {
+        gamepadEx=new GamepadEx(gamepad1);
         imageProcessor = new ImageProcessor(telemetry);
         visionPortalBuilder = new VisionPortal.Builder();
         visionPortal = visionPortalBuilder.enableLiveView(true).
@@ -60,6 +64,10 @@ public class AutoTestEOCV extends OpMode {
 
     @Override
     public void loop() {
+        gamepadEx.readButtons();
+        if (gamepadEx.wasJustReleased(GamepadKeys.Button.X)){
+            visionPortal.saveNextFrameRaw("cameraframe");
+        }
         telemetry.addData("Identified", imageProcessor.getSelection());
         // Do your paths here.
     }
