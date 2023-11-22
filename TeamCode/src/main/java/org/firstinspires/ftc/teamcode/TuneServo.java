@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -19,7 +20,7 @@ public class TuneServo extends OpMode {
     @Override
     public void init() {
         // Make the name match your config file and robot.
-        servo = hardwareMap.get(ServoEx.class, "servo1");
+        servo = new SimpleServo(hardwareMap, "servo1",0,90);
         gamepad = new GamepadEx(gamepad1);
         showTelemetry();
         telemetry.update();
