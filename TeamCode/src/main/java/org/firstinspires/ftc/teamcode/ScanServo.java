@@ -29,10 +29,10 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
 
 /*
  * This OpMode scans a single servo back and forward until Stop is pressed.
@@ -58,7 +58,7 @@ public class ScanServo extends LinearOpMode {
     static final double MIN_POS = 0.0;     // Minimum rotational position
 
     // Define class members
-    Servo servo;
+    ServoEx servo;
     double position = (MAX_POS - MIN_POS) / 2; // Start at halfway position
     boolean rampUp = true;
 
@@ -67,7 +67,7 @@ public class ScanServo extends LinearOpMode {
     public void runOpMode() {
 
         // Change the text in quotes to match any servo name on your robot.
-        servo = hardwareMap.get(Servo.class, "servo1");
+        servo = new SimpleServo(hardwareMap, "servo1", MIN_POS, MAX_POS);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to scan Servo.");
