@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,13 +22,36 @@ public class SetVelocityPIDF extends LinearOpMode {
     double pidfD = 0;
     double pidfF = 0;
     ElapsedTime timer;
+    private final int VELOCITY_RUN_TIME = 3;
     Datalog dataLog;
+    GamepadEx gamepad;
+    MotorTest motorTest = MotorTest.VELOCITY;
+
+    private enum MotorTest {
+        NONE,
+        VELOCITY,
+        POSITION
+    }
 
     @Override
     public void runOpMode() {
         timer = new ElapsedTime();
         motor = hardwareMap.get(DcMotorEx.class, "motor");
+        gamepad = new GamepadEx(gamepad1);
         dataLog = new Datalog("pidf");
+        while (!opModeIsActive()) {
+            gamepad.readButtons();
+            if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_BUMPER)) {
+                motorTest = MotorTest.POSITION;
+            }
+            if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
+                motorTest = MotorTest.VELOCITY;
+            }
+            telemetry.addLine("Left bumper: Position test");
+            telemetry.addLine("Right bumper: Velocity test");
+            telemetry.addData("Motor Test", motorTest);
+            telemetry.update();
+        }
         waitForStart();
         while (opModeIsActive()) {
             timer.reset();
@@ -51,26 +76,34 @@ public class SetVelocityPIDF extends LinearOpMode {
             pidfI = pidfP * .1;
 
             sleep(2000);
-            runVelocity = maxVelocity * .75;
-            targetPosition = motor.getCurrentPosition() + 8000;
-            motor.setTargetPosition(targetPosition);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setVelocityPIDFCoefficients(pidfP, pidfI, pidfD, pidfF);
-            motor.setPositionPIDFCoefficients(10);
-            motor.setTargetPositionTolerance(5);
-            motor.setVelocity(runVelocity);
-            while (!isStopRequested() && motor.isBusy()) {
-                currentPosition = motor.getCurrentPosition();
-                currentVelocity = motor.getVelocity();
-                telemetry.addData("PIDF", "P=%g I=%g D=%g F=%g", pidfP, pidfI, pidfD, pidfF);
-                telemetry.addData("Run to position, velocity ",  runVelocity);
-                telemetry.addData("Target", "%d", targetPosition);
-                telemetry.addData("current position", "%d", currentPosition);
-                telemetry.addData("current velocity",  currentVelocity);
-                telemetry.addData("Power",  motor.getPower());
-                telemetry.addData("Busy", motor.isBusy());
-                telemetry.update();
-                LogData();
+            if (motorTest == MotorTest.POSITION) {
+                runVelocity = maxVelocity * .9f;
+                targetPosition = motor.getCurrentPosition() + 8000;
+                motor.setTargetPosition(targetPosition);
+                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motor.setVelocityPIDFCoefficients(pidfP, pidfI, pidfD, pidfF);
+                motor.setPositionPIDFCoefficients(10);
+                motor.setTargetPositionTolerance(5);
+                motor.setVelocity(runVelocity);
+                while (!isStopRequested() && motor.isBusy()) {
+                    runPositionTest();
+                }
+
+                motor.setVelocity(0);
+            } else {
+                runVelocity = maxVelocity * .9f;
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                motor.setVelocityPIDFCoefficients(pidfP, pidfI, pidfD, pidfF);
+                motor.setVelocity(runVelocity);
+                timer.reset();
+                while (!isStopRequested() && timer.seconds() <= VELOCITY_RUN_TIME) {
+                    runVelocityTest();
+                }
+
+                motor.setVelocity(0);
+                while (motor.isBusy() || currentVelocity > 0) {
+                    runVelocityTest();
+                }
             }
 
             while (opModeIsActive()) {
@@ -82,9 +115,34 @@ public class SetVelocityPIDF extends LinearOpMode {
         }
     }
 
-    private void LogData() {
+    private void runPositionTest() {
+        currentPosition = motor.getCurrentPosition();
+        currentVelocity = motor.getVelocity();
+        telemetry.addData("PIDF", "P=%g I=%g D=%g F=%g", pidfP, pidfI, pidfD, pidfF);
+        telemetry.addData("Run to position, velocity ", runVelocity);
+        telemetry.addData("Target", "%d", targetPosition);
+        telemetry.addData("current position", "%d", currentPosition);
+        telemetry.addData("current velocity", currentVelocity);
+        telemetry.addData("Power", motor.getPower());
+        telemetry.addData("Busy", motor.isBusy());
+        telemetry.update();
+        LogPositionData();
+    }
+
+    private void runVelocityTest() {
+        currentVelocity = motor.getVelocity();
+        logVelocityData();
+    }
+
+    private void LogPositionData() {
         dataLog.targetPosition.set(targetPosition);
         dataLog.currentPosition.set(currentPosition);
+        dataLog.runVelocity.set(runVelocity);
+        dataLog.currentVelocity.set(currentVelocity);
+        dataLog.writeLine();
+    }
+
+    private void logVelocityData() {
         dataLog.runVelocity.set(runVelocity);
         dataLog.currentVelocity.set(currentVelocity);
         dataLog.writeLine();
