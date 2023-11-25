@@ -26,9 +26,38 @@ public class SetVelocityPIDF extends LinearOpMode {
     Datalog dataLog;
     GamepadEx gamepad;
     MotorTest motorTest = MotorTest.VELOCITY;
+    EncoderMode encoderMode = EncoderMode.WITH_ENCODER;
+    ZeroBehavior zeroBehavior = ZeroBehavior.BRAKE;
+    PIDversion piDversion = PIDversion.LEGACY;
+
+    private enum ZeroBehavior {
+        BRAKE,
+        FLOAT;
+
+        private ZeroBehavior getNext() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+    }
+
+    private enum EncoderMode {
+        WITH_ENCODER,
+        WITHOUT_ENCODER;
+
+        private EncoderMode getNext() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+    }
+
+    private enum PIDversion {
+        LEGACY,
+        PIDF;
+
+        private PIDversion getNext() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+    }
 
     private enum MotorTest {
-        NONE,
         VELOCITY,
         POSITION
     }
@@ -44,21 +73,40 @@ public class SetVelocityPIDF extends LinearOpMode {
             if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_BUMPER)) {
                 motorTest = MotorTest.POSITION;
             }
+
             if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
                 motorTest = MotorTest.VELOCITY;
             }
+
+            if (gamepad.wasJustReleased(GamepadKeys.Button.X)) {
+                encoderMode = encoderMode.getNext();
+            }
+
+            if (gamepad.wasJustReleased(GamepadKeys.Button.Y)) {
+                zeroBehavior = zeroBehavior.getNext();
+            }
+
+            if (gamepad.wasJustReleased(GamepadKeys.Button.A)) {
+                piDversion = piDversion.getNext();
+            }
+
             telemetry.addLine("Left bumper: Position test");
             telemetry.addLine("Right bumper: Velocity test");
+            telemetry.addLine("X: Encoder");
+            telemetry.addLine("Y: Zero Power");
+            telemetry.addLine("A: Pid");
             telemetry.addData("Motor Test", motorTest);
+            telemetry.addData("", "%s, %s, %s",
+                    encoderMode, zeroBehavior, piDversion);
             telemetry.update();
         }
         waitForStart();
         while (opModeIsActive()) {
             timer.reset();
+            // Get the max velocity
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setPower(1);
             while (timer.seconds() < 4 && !isStopRequested()) {
                 currentVelocity = motor.getVelocity();
@@ -71,11 +119,13 @@ public class SetVelocityPIDF extends LinearOpMode {
             }
 
             motor.setPower(0);
+            // Use max to calculate default PIDF values.
             pidfF = 32767 / maxVelocity;
             pidfP = pidfF * .1;
             pidfI = pidfP * .1;
 
             sleep(2000);
+            // Now run selected test.
             if (motorTest == MotorTest.POSITION) {
                 runVelocity = maxVelocity * .9f;
                 targetPosition = motor.getCurrentPosition() + 8000;
@@ -91,9 +141,15 @@ public class SetVelocityPIDF extends LinearOpMode {
 
                 motor.setVelocity(0);
             } else {
-                runVelocity = maxVelocity * .9f;
-                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                motor.setVelocityPIDFCoefficients(pidfP, pidfI, pidfD, pidfF);
+                // Velocity test
+                runVelocity = maxVelocity * .8f;
+                // Set options selected
+                motor.setZeroPowerBehavior(zeroBehavior == ZeroBehavior.FLOAT ? DcMotor.ZeroPowerBehavior.FLOAT : DcMotor.ZeroPowerBehavior.BRAKE);
+                motor.setMode(encoderMode == EncoderMode.WITHOUT_ENCODER ? DcMotor.RunMode.RUN_WITHOUT_ENCODER : DcMotor.RunMode.RUN_USING_ENCODER);
+                if (piDversion == PIDversion.PIDF) {
+                    motor.setVelocityPIDFCoefficients(pidfP, pidfI, pidfD, pidfF);
+                }
+
                 motor.setVelocity(runVelocity);
                 timer.reset();
                 while (!isStopRequested() && timer.seconds() <= VELOCITY_RUN_TIME) {
