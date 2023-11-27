@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class SetVelocityPIDF extends LinearOpMode {
     DcMotorEx motor;
     double currentVelocity;
+    double currentPower;
     int targetPosition = 0;
     int currentPosition = 0;
     double maxVelocity = 0.0;
@@ -157,7 +158,8 @@ public class SetVelocityPIDF extends LinearOpMode {
                 }
 
                 motor.setVelocity(0);
-                while (motor.isBusy() || currentVelocity > 0) {
+                timer.reset();
+                while ((motor.isBusy() || currentVelocity > 0) && timer.seconds() < 1) {
                     runVelocityTest();
                 }
             }
@@ -174,12 +176,13 @@ public class SetVelocityPIDF extends LinearOpMode {
     private void runPositionTest() {
         currentPosition = motor.getCurrentPosition();
         currentVelocity = motor.getVelocity();
+        currentPower = motor.getPower();
         telemetry.addData("PIDF", "P=%g I=%g D=%g F=%g", pidfP, pidfI, pidfD, pidfF);
         telemetry.addData("Run to position, velocity ", runVelocity);
         telemetry.addData("Target", "%d", targetPosition);
         telemetry.addData("current position", "%d", currentPosition);
         telemetry.addData("current velocity", currentVelocity);
-        telemetry.addData("Power", motor.getPower());
+        telemetry.addData("Power", currentPower);
         telemetry.addData("Busy", motor.isBusy());
         telemetry.update();
         LogPositionData();
@@ -187,6 +190,11 @@ public class SetVelocityPIDF extends LinearOpMode {
 
     private void runVelocityTest() {
         currentVelocity = motor.getVelocity();
+        currentPower = motor.getPower();
+        motor.getPower();
+        telemetry.addData("current velocity", currentVelocity);
+        telemetry.addData("Power", currentPower);
+        telemetry.update();
         logVelocityData();
     }
 
@@ -201,6 +209,7 @@ public class SetVelocityPIDF extends LinearOpMode {
     private void logVelocityData() {
         dataLog.runVelocity.set(runVelocity);
         dataLog.currentVelocity.set(currentVelocity);
+        dataLog.currentPower.set(currentPower);
         dataLog.writeLine();
     }
 
@@ -215,6 +224,7 @@ public class SetVelocityPIDF extends LinearOpMode {
         // Note that order here is NOT important. The order is important in the setFields() call below
         public Datalogger.GenericField runVelocity = new Datalogger.GenericField("Run Velocity");
         public Datalogger.GenericField currentVelocity = new Datalogger.GenericField("Current Velocity");
+        public Datalogger.GenericField currentPower = new Datalogger.GenericField("Current Power");
         public Datalogger.GenericField targetPosition = new Datalogger.GenericField("Target Position");
         public Datalogger.GenericField currentPosition = new Datalogger.GenericField("Current Position");
         public Datalogger.GenericField xRate = new Datalogger.GenericField("X Rate");
