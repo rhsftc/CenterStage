@@ -246,6 +246,7 @@ public class SetVelocityPIDF extends LinearOpMode {
                     .setFields(
                             runVelocity,
                             currentVelocity,
+                            currentPower,
                             targetPosition,
                             currentPosition
                     )
