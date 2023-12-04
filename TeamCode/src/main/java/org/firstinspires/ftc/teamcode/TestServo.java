@@ -4,23 +4,25 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
+import com.arcrobotics.ftclib.hardware.motors.CRServo;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "Tune Servo", group = "Servo")
+@TeleOp(name = "Test Servo", group = "Servo")
 //@Disabled
-public class TuneServo extends OpMode {
+public class TestServo extends OpMode {
     static final double INCREMENT = 0.1;     // amount to slew servo each button press.
     private double minScale = 0;
     private double maxScale = 1;
     private ServoEx servo;
-    private double position = .5;
+    private double position = 0;
     private GamepadEx gamepad;
 
     @Override
     public void init() {
         // Make the name match your config file and robot.
-        servo = new SimpleServo(hardwareMap, "servo1",0,90);
+        servo = new SimpleServo(hardwareMap, "servo1", 0, 90);
         gamepad = new GamepadEx(gamepad1);
         showTelemetry();
         telemetry.update();
@@ -35,26 +37,28 @@ public class TuneServo extends OpMode {
     public void loop() {
         gamepad.readButtons();
         if (gamepad.wasJustReleased(GamepadKeys.Button.LEFT_BUMPER)) {
-            position = 0;
+            position = -1;
         }
 
         if (gamepad.wasJustReleased(GamepadKeys.Button.RIGHT_BUMPER)) {
             position = 1;
         }
+
         if (gamepad.wasJustReleased(GamepadKeys.Button.Y)) {
-            position = .5;
+            position = 0;
         }
+
         if (gamepad.wasJustPressed(GamepadKeys.Button.A)) {
             minScale = 0;
             maxScale = 1;
             servo.setRange(minScale, maxScale);
         }
 
-        if (gamepad.wasJustReleased(GamepadKeys.Button.DPAD_UP) && position < 1) {
+        if (gamepad.wasJustReleased(GamepadKeys.Button.DPAD_UP) && position < .8) {
             position += INCREMENT;
         }
 
-        if (gamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN) && position > 0) {
+        if (gamepad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN) && position > -.8) {
             position -= INCREMENT;
         }
 
