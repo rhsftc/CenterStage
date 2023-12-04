@@ -7,7 +7,7 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "Tune Servo", group = "Servo")
+@TeleOp(name = "Test CR Servo", group = "Servo")
 //@Disabled
 public class TestCRServo extends OpMode {
     static final double INCREMENT = 0.1;     // amount to change servo speed each button press.
