@@ -2,12 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
-import com.arcrobotics.ftclib.hardware.motors.CRServo;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.PwmControl;
 
 @TeleOp(name = "Test Servo", group = "Servo")
 //@Disabled
@@ -15,13 +13,15 @@ public class TestServo extends OpMode {
     static final double INCREMENT = 0.1;     // amount to slew servo each button press.
     private double minScale = 0;
     private double maxScale = 1;
-    private ServoEx servo;
+//    private ServoImplEx servo;
+    private SimpleServo servo;
     private double position = 0;
     private GamepadEx gamepad;
 
     @Override
     public void init() {
         // Make the name match your config file and robot.
+//        servo = hardwareMap.get(ServoImplEx.class, "servo1");
         servo = new SimpleServo(hardwareMap, "servo1", 0, 90);
         gamepad = new GamepadEx(gamepad1);
         showTelemetry();
@@ -45,7 +45,7 @@ public class TestServo extends OpMode {
         }
 
         if (gamepad.wasJustReleased(GamepadKeys.Button.Y)) {
-            position = 0;
+            position = .5;
         }
 
         if (gamepad.wasJustPressed(GamepadKeys.Button.A)) {
@@ -71,12 +71,16 @@ public class TestServo extends OpMode {
             maxScale = position;
             servo.setRange(minScale, maxScale);
         }
+        if (gamepad.wasJustReleased((GamepadKeys.Button.BACK))) {
+            ((PwmControl) servo).setPwmDisable();
+        }
 
         servo.setPosition(position);
         showTelemetry();
     }
 
     private void showTelemetry() {
+        telemetry.addLine("Disable Servo = back");
         telemetry.addLine("Left bumper = 0");
         telemetry.addLine("Right bumper = 1");
         telemetry.addLine("Y = .5 (middle)");
