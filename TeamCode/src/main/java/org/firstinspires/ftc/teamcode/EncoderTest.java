@@ -119,11 +119,7 @@ public class EncoderTest extends OpMode {
             motor.setVelocity(RUN_VELOCITY);
         }
         if (gamePad.wasJustPressed(GamepadKeys.Button.Y)) {
-            motor.setPower(0);
-            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            while (motor.getCurrentPosition() != 0) {
-                motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            }
+            stopAndResetEncoder(motor);
         }
 
         mode = motor.getMode();
@@ -148,5 +144,19 @@ public class EncoderTest extends OpMode {
     public void stop() {
         motor.setPower(0);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    /**
+     * This seems to be the only way to reliably stop a motor and reset the encoder.
+     * This wos only tested on a goBilda motor.
+     *
+     * @param motor
+     */
+    private void stopAndResetEncoder(DcMotorEx motor) {
+        motor.setPower(0);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        while (motor.getCurrentPosition() != 0) {
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
     }
 }
