@@ -91,30 +91,34 @@ public class LynxTest extends OpMode {
     public void loop() {
         gamePad.readButtons();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        if (gamePad.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
+        if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_UP)) {
             motor.setTargetPosition((int) (motor.getCurrentPosition() + 1500));
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setVelocity(2800);
         }
 
-        if (gamePad.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
+        if (gamePad.wasJustReleased(GamepadKeys.Button.DPAD_DOWN)) {
             motor.setTargetPosition((int) (motor.getCurrentPosition() - 1500));
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setVelocity(2800);
         }
 
-        if (gamePad.wasJustPressed(GamepadKeys.Button.Y)) {
+        if (gamePad.wasJustReleased(GamepadKeys.Button.Y)) {
             stopAndResetEncoder(motor);
         }
 
-        telemetry.addData("Motor Current", "%6.2f", motor.getCurrent(CurrentUnit.MILLIAMPS));
+        telemetry.addData("Motor Mode", motor.getMode());
+        telemetry.addData("Motor Current", "%6.2f", motor.getCurrent(CurrentUnit.AMPS));
         telemetry.addData("Modules", lynxModules.size());
         for (LynxModule m : lynxModules) {
             telemetry.addData("Module", m.getDeviceName());
             telemetry.addData("Connection", m.getConnectionInfo());
+            telemetry.addData("Parent", m.isParent());
             telemetry.addData("Input Voltage", "%6.2f", m.getInputVoltage(VoltageUnit.VOLTS));
             telemetry.addData("Aux. Voltage", "%6.2f", m.getAuxiliaryVoltage(VoltageUnit.VOLTS));
             telemetry.addData("Current", "%6.2f", m.getCurrent(CurrentUnit.AMPS));
+            telemetry.addData("GPIO Bus", "%6.2f", m.getGpioBusCurrent(CurrentUnit.AMPS));
+            telemetry.addData("I2C Bus", "%6.2f", m.getI2cBusCurrent(CurrentUnit.AMPS));
             telemetry.addData("Temp", "%6.2f", m.getTemperature(TempUnit.FARENHEIT));
         }
     }
@@ -136,11 +140,8 @@ public class LynxTest extends OpMode {
      * @param motor
      */
     private void stopAndResetEncoder(DcMotorEx motor) {
-        motor.setPower(0);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        while (motor.getCurrentPosition() != 0) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
 }

@@ -69,7 +69,7 @@ public class EncoderTest extends OpMode {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setPower(0);
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pidfVelocityCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         pidfVelocityCoefficients.p = 1.063f;
         pidfVelocityCoefficients.i = 1.063f;
@@ -142,8 +142,7 @@ public class EncoderTest extends OpMode {
      */
     @Override
     public void stop() {
-        motor.setPower(0);
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        stopAndResetEncoder(motor);
     }
 
     /**
@@ -155,8 +154,7 @@ public class EncoderTest extends OpMode {
     private void stopAndResetEncoder(DcMotorEx motor) {
         motor.setPower(0);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        while (motor.getCurrentPosition() != 0) {
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        }
     }
 }
