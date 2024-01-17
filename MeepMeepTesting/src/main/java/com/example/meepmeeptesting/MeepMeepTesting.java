@@ -46,7 +46,6 @@ public class MeepMeepTesting {
                 .splineTo(new Vector2d(50, -42), Math.toRadians(0))
                 .stopAndAdd(new SleepAction(1.5))
                 .splineTo(new Vector2d(-36, -62), Math.toRadians(90))
-                .stopAndAdd(new SleepAction(2))
                 .build());
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_JUICE_DARK)
