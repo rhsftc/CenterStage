@@ -158,6 +158,7 @@ public class EncoderTest extends OpMode {
      */
     private void stopAndResetEncoder(DcMotorEx motor) {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setPower(0);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 }
