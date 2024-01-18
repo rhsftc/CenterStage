@@ -55,6 +55,7 @@ public class EncoderTest extends OpMode {
     private final double MAX_VELOCITY = 2900;
     private double RUN_VELOCITY = MAX_VELOCITY * .7f;
     private PIDFCoefficients pidfVelocityCoefficients;
+    private PIDFCoefficients pidfPositionCoefficients;
 
     /**
      * This method will be called once, when the INIT button is pressed.
@@ -67,14 +68,15 @@ public class EncoderTest extends OpMode {
         gamePad = new GamepadEx(gamepad1);
         motor = hardwareMap.get(DcMotorEx.class, "motor");
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motor.setPower(0);
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pidfVelocityCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        pidfPositionCoefficients = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION);
         pidfVelocityCoefficients.p = 1.063f;
         pidfVelocityCoefficients.i = 1.063f;
         pidfVelocityCoefficients.f = 10.63f;
         motor.setVelocityPIDFCoefficients(pidfVelocityCoefficients.p, pidfVelocityCoefficients.i, pidfVelocityCoefficients.d, pidfVelocityCoefficients.f);
+        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, pidfPositionCoefficients);
         motor.setPositionPIDFCoefficients(10f);
         motor.setTargetPositionTolerance(5);
     }
@@ -87,6 +89,7 @@ public class EncoderTest extends OpMode {
     @Override
     public void init_loop() {
         telemetry.addLine("Dpad Up and Dpad Down");
+        telemetry.addLine("Y - Stop and Reset");
         telemetry.addData("Position", motor.getCurrentPosition());
         telemetry.update();
     }
@@ -97,6 +100,7 @@ public class EncoderTest extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        motor.setPower(0);
     }
 
     /**
@@ -118,6 +122,7 @@ public class EncoderTest extends OpMode {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setVelocity(RUN_VELOCITY);
         }
+
         if (gamePad.wasJustPressed(GamepadKeys.Button.Y)) {
             stopAndResetEncoder(motor);
         }
@@ -152,9 +157,7 @@ public class EncoderTest extends OpMode {
      * @param motor
      */
     private void stopAndResetEncoder(DcMotorEx motor) {
-        motor.setPower(0);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        }
     }
 }
