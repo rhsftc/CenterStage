@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.processors;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -23,13 +27,36 @@ public class PixelStackAprilTags {
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
     private Boolean targetFound = false;
+    private OpMode opmode;
 
     /**
      * Initializes the april tags and tries to find the tags.
      */
-    public PixelStackAprilTags() {
+    public PixelStackAprilTags(OpMode opMode) {
+        opmode = opMode;
+    }
+
+    public void init() {
         initAprilTag();
+        // Wait for the camera to be open
+        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            opmode.telemetry.addData("Camera", "Waiting");
+            opmode.telemetry.update();
+            while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
+            }
+            opmode.telemetry.addData("Camera", "Ready");
+            opmode.telemetry.update();
+        }
+    }
+
+    /**
+     * Look for tags and return result.
+     *
+     * @return
+     */
+    public boolean detectTags() {
         desiredTag = findWallTag();
+        return targetFound;
     }
 
     /**
@@ -50,15 +77,25 @@ public class PixelStackAprilTags {
     }
 
     /**
+     * Get the detected tag;
+     *
+     * @return AprilTagDetection
+     */
+    public AprilTagDetection getDetection() {
+        return desiredTag;
+    }
+
+    /**
      * Disable april tag processing to conserve resources.
      */
-    public void disableTagProcessing(){
+    public void disableTagProcessing() {
         visionPortal.setProcessorEnabled(aprilTag, false);
     }
 
     private AprilTagDetection findWallTag() {
         // Step through the list of detected tags and look for a matching tag
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        targetFound = false;
         for (AprilTagDetection detection : currentDetections) {
             // Look to see if we have size info on this tag.
             if (detection.metadata != null) {
@@ -70,11 +107,11 @@ public class PixelStackAprilTags {
                     break;  // don't look any further.
                 } else {
                     // This tag is in the library, but we do not want to track it right now.
-                    telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
+                    opmode.telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
                 }
             } else {
                 // This tag is NOT in the library, so we don't have enough information to track to it.
-                telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
+                opmode.telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
             }
         }
 
@@ -88,6 +125,8 @@ public class PixelStackAprilTags {
         // Create the AprilTag processor by using a builder.
         aprilTag = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)
+                .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .build();
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
@@ -101,7 +140,7 @@ public class PixelStackAprilTags {
 
         // Create the vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "webcam1"))
+                .setCamera(opmode.hardwareMap.get(WebcamName.class, "webcam1"))
                 .addProcessor(aprilTag)
                 .build();
     }

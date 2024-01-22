@@ -40,10 +40,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 /*
  * Test op mode for wall april tags.
  */
-@TeleOp(name = "Wall April Tags", group = "test")
-@Disabled
+@TeleOp(name = "Wall April Tags", group = "Camera")
+//@Disabled
 public class WallAprilTags extends OpMode {
-
     private ElapsedTime runtime = new ElapsedTime();
     private PixelStackAprilTags pixelStackAprilTags;
 
@@ -52,7 +51,8 @@ public class WallAprilTags extends OpMode {
      */
     @Override
     public void init() {
-        pixelStackAprilTags = new PixelStackAprilTags();
+        pixelStackAprilTags = new PixelStackAprilTags(this);
+        pixelStackAprilTags.init();
         telemetry.addData("Status", "Initialized");
     }
 
@@ -80,12 +80,19 @@ public class WallAprilTags extends OpMode {
     @Override
     public void loop() {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        AprilTagPoseFtc aprilTagPoseFtc = pixelStackAprilTags.getAprilTagPose();
-        telemetry.addData("Range", aprilTagPoseFtc.range);
-        telemetry.addData("Bearing", aprilTagPoseFtc.bearing);
-        telemetry.addData("x", aprilTagPoseFtc.x);
-        telemetry.addData("y", aprilTagPoseFtc.y);
-        telemetry.addData("Yaw", aprilTagPoseFtc.yaw);
+        if (pixelStackAprilTags.detectTags()) {
+            AprilTagPoseFtc aprilTagPoseFtc = pixelStackAprilTags.getAprilTagPose();
+            telemetry.addData("Tag Id", pixelStackAprilTags.getDetection().id);
+            telemetry.addData("Tag Name", pixelStackAprilTags.getDetection().metadata.name);
+            telemetry.addData("Range", aprilTagPoseFtc.range);
+            telemetry.addData("Bearing", aprilTagPoseFtc.bearing);
+            telemetry.addData("x", aprilTagPoseFtc.x);
+            telemetry.addData("y", aprilTagPoseFtc.y);
+            telemetry.addData("z", aprilTagPoseFtc.z);
+            telemetry.addData("Yaw", aprilTagPoseFtc.yaw);
+        } else {
+            telemetry.addLine("No tags found");
+        }
     }
 
     /**
