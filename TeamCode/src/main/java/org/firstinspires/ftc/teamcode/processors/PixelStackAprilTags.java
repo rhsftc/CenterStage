@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.processors;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -26,37 +27,30 @@ public class PixelStackAprilTags {
     private VisionPortal visionPortal;               // Used to manage the video source.
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private AprilTagDetection desiredTag = null;     // Used to hold the data for a detected AprilTag
-    private Boolean targetFound = false;
     private OpMode opmode;
+    private HardwareMap thisHardwareMap;
 
     /**
      * Initializes the april tags and tries to find the tags.
      */
-    public PixelStackAprilTags(OpMode opMode) {
-        opmode = opMode;
+    public PixelStackAprilTags(HardwareMap hardwareMap) {
+        thisHardwareMap = hardwareMap;
     }
 
     public void init() {
         initAprilTag();
         // Wait for the camera to be open
-        if (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            opmode.telemetry.addData("Camera", "Waiting");
-            opmode.telemetry.update();
-            while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
-            }
-            opmode.telemetry.addData("Camera", "Ready");
-            opmode.telemetry.update();
+        while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING) {
         }
     }
 
     /**
      * Look for tags and return result.
      *
-     * @return
+     * @return AprilTagDetection, a tag or null if none detected.
      */
-    public boolean detectTags() {
-        desiredTag = findWallTag();
-        return targetFound;
+    public AprilTagDetection detectTags() {
+        return findWallTag();
     }
 
     /**
@@ -64,7 +58,7 @@ public class PixelStackAprilTags {
      * Returns the range or 0 if we did not find the tag.
      */
     public double getRangeToWall() {
-        return targetFound ? desiredTag.ftcPose.range : 0;
+        return desiredTag != null ? desiredTag.ftcPose.range : 0;
     }
 
     /**
@@ -73,7 +67,7 @@ public class PixelStackAprilTags {
      * @return - Null if we did not find the tag.
      */
     public AprilTagPoseFtc getAprilTagPose() {
-        return targetFound ? desiredTag.ftcPose : null;
+        return desiredTag == null ? null : desiredTag.ftcPose;
     }
 
     /**
@@ -95,24 +89,18 @@ public class PixelStackAprilTags {
     private AprilTagDetection findWallTag() {
         // Step through the list of detected tags and look for a matching tag
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        targetFound = false;
+        desiredTag = null;
         for (AprilTagDetection detection : currentDetections) {
             // Look to see if we have size info on this tag.
             if (detection.metadata != null) {
                 //  Check to see if we want to track towards this tag.
                 if ((detection.id == LARGE_BLUE_WALL_TAG_ID) || (detection.id == LARGE_RED_WALL_TAG_ID)) {
                     // Yes, we want to use this tag.
-                    targetFound = true;
                     desiredTag = detection;
                     break;  // don't look any further.
-                } else {
-                    // This tag is in the library, but we do not want to track it right now.
-                    opmode.telemetry.addData("Skipping", "Tag ID %d is not desired", detection.id);
                 }
-            } else {
-                // This tag is NOT in the library, so we don't have enough information to track to it.
-                opmode.telemetry.addData("Unknown", "Tag ID %d is not in TagLibrary", detection.id);
             }
+
         }
 
         return desiredTag;
@@ -140,8 +128,9 @@ public class PixelStackAprilTags {
 
         // Create the vision portal by using a builder.
         visionPortal = new VisionPortal.Builder()
-                .setCamera(opmode.hardwareMap.get(WebcamName.class, "webcam1"))
+                .setCamera(thisHardwareMap.get(WebcamName.class, "webcam1"))
                 .addProcessor(aprilTag)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
     }
 }

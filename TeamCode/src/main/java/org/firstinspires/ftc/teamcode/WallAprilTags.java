@@ -63,7 +63,7 @@ public class WallAprilTags extends OpMode {
         angleServo = hardwareMap.get(Servo.class, "servo1");
         angleServo.setPosition(0);
         angleServo.setPosition(WAITING_SERVO_POSITION);
-        pixelStackAprilTags = new PixelStackAprilTags(this);
+        pixelStackAprilTags = new PixelStackAprilTags(hardwareMap);
         pixelStackAprilTags.init();
         telemetry.addData("Status", "Initialized");
     }
@@ -93,7 +93,7 @@ public class WallAprilTags extends OpMode {
     public void loop() {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         launchedPosition = launchDrone();
-        if (pixelStackAprilTags.detectTags()) {
+        if (pixelStackAprilTags.detectTags() != null) {
             AprilTagPoseFtc aprilTagPoseFtc = pixelStackAprilTags.getAprilTagPose();
             telemetry.addData("Tag Id", pixelStackAprilTags.getDetection().id);
             telemetry.addData("Tag Name", pixelStackAprilTags.getDetection().metadata.name);
