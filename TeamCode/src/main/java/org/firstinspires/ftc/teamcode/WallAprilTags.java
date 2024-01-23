@@ -29,9 +29,6 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.arcrobotics.ftclib.hardware.ServoEx;
-import com.arcrobotics.ftclib.hardware.motors.CRServo;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -52,7 +49,7 @@ public class WallAprilTags extends OpMode {
     private final double LAUNCHING_SERVO_POSITION = 0.4;
     private final double WAITING_SERVO_POSITION = 0.64;
     private final double TAG_RANGE = 72;
-    private double launchedPosition = 0;
+    private double launchedAngle = 0;
 
 
     /**
@@ -92,7 +89,7 @@ public class WallAprilTags extends OpMode {
     @Override
     public void loop() {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        launchedPosition = launchDrone();
+        launchedAngle = launchDrone();
         if (pixelStackAprilTags.detectTags() != null) {
             AprilTagPoseFtc aprilTagPoseFtc = pixelStackAprilTags.getAprilTagPose();
             telemetry.addData("Tag Id", pixelStackAprilTags.getDetection().id);
@@ -107,7 +104,7 @@ public class WallAprilTags extends OpMode {
             telemetry.addLine("No tags found");
         }
 
-        telemetry.addData("Launch position", launchedPosition);
+        telemetry.addData("Launch angle", launchedAngle);
     }
 
     /**
@@ -124,16 +121,10 @@ public class WallAprilTags extends OpMode {
     // Return the servo position.
     private double launchDrone() {
         double launchRange = pixelStackAprilTags.getRangeToWall();
-        double launchPosition;
         // 0 means use the default angle, we did not see the tag.
-        if (launchRange == 0) {
-            launchPosition = LAUNCHING_SERVO_POSITION;
-        } else {
-            launchPosition = getLaunchPosition(launchRange);
-        }
-
-        angleServo.setPosition(launchPosition);
-        return launchPosition;
+        double launchAngle = launchRange == 0 ? LAUNCHING_SERVO_POSITION : getLaunchPosition(launchRange);
+        angleServo.setPosition(launchAngle);
+        return launchAngle;
     }
 
     private double getLaunchPosition(double range) {
