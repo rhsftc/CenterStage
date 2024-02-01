@@ -101,6 +101,7 @@ public class SetVelocityPIDF extends LinearOpMode {
                     encoderMode, zeroBehavior, piDversion);
             telemetry.update();
         }
+
         waitForStart();
         while (opModeIsActive()) {
             timer.reset();
@@ -126,24 +127,25 @@ public class SetVelocityPIDF extends LinearOpMode {
             pidfI = pidfP * .1;
 
             sleep(2000);
-            // Now run selected test.
             if (motorTest == MotorTest.POSITION) {
-                runVelocity = maxVelocity * .9f;
+                runVelocity = maxVelocity * .5f;
                 targetPosition = motor.getCurrentPosition() + 8000;
-                motor.setTargetPosition(targetPosition);
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                motor.setVelocityPIDFCoefficients(pidfP, pidfI, pidfD, pidfF);
-                motor.setPositionPIDFCoefficients(10);
-                motor.setTargetPositionTolerance(5);
-                motor.setVelocity(runVelocity);
-                while (!isStopRequested() && motor.isBusy()) {
-                    runPositionTest();
+                // Set options selected
+                motor.setZeroPowerBehavior(zeroBehavior == ZeroBehavior.FLOAT ? DcMotor.ZeroPowerBehavior.FLOAT : DcMotor.ZeroPowerBehavior.BRAKE);
+                if (piDversion == PIDversion.PIDF) {
+                    motor.setVelocityPIDFCoefficients(pidfP, pidfI, pidfD, pidfF);
+                    motor.setPositionPIDFCoefficients(10);
+                    motor.setTargetPositionTolerance(5);
                 }
 
-                motor.setVelocity(0);
+                motor.setTargetPosition(targetPosition);
+                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motor.setVelocity(runVelocity);
+                while (!isStopRequested() && (motor.isBusy() || motor.getVelocity() != 0)) {
+                    runPositionTest();
+                }
             } else {
-                // Velocity test
-                runVelocity = maxVelocity * .8f;
+                runVelocity = maxVelocity * .5f;
                 // Set options selected
                 motor.setZeroPowerBehavior(zeroBehavior == ZeroBehavior.FLOAT ? DcMotor.ZeroPowerBehavior.FLOAT : DcMotor.ZeroPowerBehavior.BRAKE);
                 motor.setMode(encoderMode == EncoderMode.WITHOUT_ENCODER ? DcMotor.RunMode.RUN_WITHOUT_ENCODER : DcMotor.RunMode.RUN_USING_ENCODER);
@@ -157,9 +159,10 @@ public class SetVelocityPIDF extends LinearOpMode {
                     runVelocityTest();
                 }
 
-                motor.setVelocity(0);
+                motor.setPower(0);
+                // Wait until motor comes to rest.
                 timer.reset();
-                while ((motor.isBusy() || currentVelocity > 0) && timer.seconds() < 1) {
+                while (motor.isBusy() && motor.getVelocity() != 0 && timer.seconds() < 1) {
                     runVelocityTest();
                 }
             }
@@ -191,7 +194,6 @@ public class SetVelocityPIDF extends LinearOpMode {
     private void runVelocityTest() {
         currentVelocity = motor.getVelocity();
         currentPower = motor.getPower();
-        motor.getPower();
         telemetry.addData("current velocity", currentVelocity);
         telemetry.addData("Power", currentPower);
         telemetry.update();
@@ -202,6 +204,7 @@ public class SetVelocityPIDF extends LinearOpMode {
         dataLog.targetPosition.set(targetPosition);
         dataLog.currentPosition.set(currentPosition);
         dataLog.runVelocity.set(runVelocity);
+        dataLog.currentPower.set(currentPower);
         dataLog.currentVelocity.set(currentVelocity);
         dataLog.writeLine();
     }
@@ -227,9 +230,6 @@ public class SetVelocityPIDF extends LinearOpMode {
         public Datalogger.GenericField currentPower = new Datalogger.GenericField("Current Power");
         public Datalogger.GenericField targetPosition = new Datalogger.GenericField("Target Position");
         public Datalogger.GenericField currentPosition = new Datalogger.GenericField("Current Position");
-        public Datalogger.GenericField xRate = new Datalogger.GenericField("X Rate");
-        public Datalogger.GenericField yRate = new Datalogger.GenericField("Y Rate");
-
         public Datalog(String name) {
             // Build the underlying datalog object
             datalogger = new Datalogger.Builder()
