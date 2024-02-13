@@ -108,9 +108,9 @@ public class AprilTag extends LinearOpMode {
 
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
-                //.setDrawAxes(false)
-                //.setDrawCubeProjection(false)
-                //.setDrawTagOutline(true)
+                .setDrawAxes(false)
+                .setDrawCubeProjection(false)
+                .setDrawTagOutline(true)
                 //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
